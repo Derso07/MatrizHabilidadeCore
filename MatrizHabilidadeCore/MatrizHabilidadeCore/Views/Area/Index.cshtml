@@ -1,0 +1,214 @@
+﻿@model MatrizHabilidade.ViewModel.AreaViewModel
+
+@{
+    ViewBag.Title = "Matriz de Habilidade - " + Model.AreaDescricao;
+}
+
+@section buttons{
+
+    @if (Model.IsRedirected)
+    {
+        <a href="/MatrizHabilidade" title="Home">
+            <img src="~/Content/images/icons/Icones-01.png" />
+        </a>
+    }
+    else
+    {
+        <a href="/MatrizHabilidade/Planta?planta=@Model.PlantaId" title="Home">
+            <img src="~/Content/images/icons/Icones-01.png" />
+        </a>
+    }
+
+    <a href="/MatrizHabilidade/Coordenador?planta=@Model.PlantaId&area=@Model.AreaId">
+        <img src="~/Content/images/Metas coodenador.png" />
+    </a>
+
+    @if (this.User.IsInRole(Roles.Adminstrador))
+    {
+        <a href="/MatrizHabilidade/PlanoAcao?planta=@Model.PlantaId&area=@Model.AreaId" title="Plano de Ação">
+            <img class="icon-plano-acao" src="~/Content/images/icons/Icones Plano de ação-07.svg" />
+        </a>
+    }
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        <h3>@Model.PlantaDescricao</h3>
+        <h3 class="arrow">&#8250;</h3>
+        <h3>@Model.AreaDescricao</h3>
+    </div>
+</div>
+
+<div class="main">
+
+    <div id="Year" class="flex-row">
+        <form action="/MatrizHabilidade/Home/ChangeYear" method="post">
+
+            <input type="hidden" name="returnurl" value="@Request.Url.PathAndQuery" />
+
+            <label>Fiscal Year</label>
+            <div class="styled-select">
+                <select onchange="this.form.submit()" name="ano">
+                    @foreach (var ano in ViewBag.Anos)
+                    {
+                        if (TempData[Claims.CurrentYear.Value] == ano)
+                        {
+                            <option value="@ano">@ano.ToString().Substring(2)</option>
+                        }
+                    }
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div id="AreaContainer" class="flex-row">
+        <div class="flex-row">
+            <div class="canvas flex-column">
+                <div>
+                    <h4 class="text-center">GAP Por Máquina</h4>
+                </div>
+                <div id="GAPMaquinaContainer" class="flex-row perfect-scroll">
+                    <div class="flex-row">
+                        @foreach (var maquina in Model.Maquinas.OrderBy(m => m.Descricao))
+                        {
+                            <div class="flex-column">
+                                <div class="flex-row">
+                                    <div class="bar-chart vertical">
+                                        <div class="auditoria" style="height: @(maquina.Auditoria.Media.ToString())%">
+                                            <span>@(maquina.Auditoria.Media.ToString())%</span>
+                                            <div class="pop-up canvas flex-column">
+                                                <h5>@Model.AreaDescricao</h5>
+                                                <p><span class="dot auditoria"></span> GAP de Conhecimento Geral: @(maquina.Auditoria.Media.ToString())%</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-chart vertical">
+                                        <div class="treinamento" style="height: @(maquina.Treinamento.Media.ToString())%">
+                                            <span>@(maquina.Treinamento.Media.ToString())%</span>
+                                            <div class="pop-up canvas flex-column">
+                                                <h5>@Model.AreaDescricao</h5>
+                                                <p><span class="dot treinamento"></span> GAP de Profissionais a Serem Treinados: @(maquina.Treinamento.Media.ToString())%</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="target"></div>
+                                <div class="flex-row">
+                                    <div class="farol @(maquina.Auditoria.Media.GetFarol())"></div>
+                                    <div class="farol @(maquina.Treinamento.Media.GetFarol())"></div>
+                                </div>
+                                <div class="flex-column">
+                                    <a class="button" href="/MatrizHabilidade/Maquina?planta=@Model.PlantaId&area=@Model.AreaId&maquina=@maquina.Id">@maquina.Descricao</a>
+                                </div>
+                            </div>
+                        }
+                        <div class="flex-row arrow">
+                            <div class="flex-column">
+                                <div>
+                                    <img src="~/Content/images/Seta nova.png" />
+                                </div>
+                                <span>0%</span>
+                            </div>
+                            <div>
+                                <span>Meta</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-row">
+                    <div>
+                        <span class="dot auditoria"></span>
+                        <span>GAP de Conhecimento</span>
+                    </div>
+                    <div>
+                        <span class="dot treinamento"></span>
+                        <span>GAP de Treinamento</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-column">
+            <div class="canvas title flex-center">
+                <h4 class="text-center">GAP de Conhecimento <br /> (Total)</h4>
+            </div>
+            <div class="chart">
+                <div class="c100 p@(Model.Conhecimento.Media.ToString()) @Model.Conhecimento.Media.GetFarol() center">
+                    <span>@(Model.Conhecimento.Media.ToString())%</span>
+                    <div class="slice">
+                        <div class="bar"></div>
+                        <div class="fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas flex-column">
+                <div class="gauge-container flex-column">
+                    <div class="flex-row">
+                        <div class="target"></div>
+                        <div class="flex-column">
+                            @foreach (var treinamento in Model.Conhecimento.Treinamentos)
+                            {
+                                <div class="flex-column">
+                                    <label>@treinamento.Key</label>
+                                    <div class="bar-chart @treinamento.Value.GetFarol()">
+                                        <div style="width: @treinamento.Value.ToString()%">
+                                            <span>@treinamento.Value.ToString()%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <span>0%</span>
+                        <img src="~/Content/images/Seta nova.png" />
+                    </div>
+                    <div class="flex-right">
+                        Meta
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-column">
+            <div class="canvas title flex-center">
+                <h4 class="text-center">GAP de Profissionais a Serem <br /> Treinados (Total)</h4>
+            </div>
+            <div class="chart">
+                <div class="c100 p@(Model.Treinamento.Media.ToString()) @Model.Treinamento.Media.GetFarol() center">
+                    <span>@(Model.Treinamento.Media.ToString())%</span>
+                    <div class="slice">
+                        <div class="bar"></div>
+                        <div class="fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas flex-column">
+                <div class="gauge-container flex-column">
+                    <div class="flex-row">
+                        <div class="target"></div>
+                        <div class="flex-column">
+                            @foreach (var treinamento in Model.Treinamento.Treinamentos)
+                            {
+                                <div class="flex-column">
+                                    <label>@treinamento.Key</label>
+                                    <div class="bar-chart @treinamento.Value.GetFarol()">
+                                        <div style="width: @treinamento.Value.ToString()%">
+                                            <span>@treinamento.Value.ToString()%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <span>0%</span>
+                        <img src="~/Content/images/Seta nova.png" />
+                    </div>
+                    <div class="flex-right">
+                        Meta
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

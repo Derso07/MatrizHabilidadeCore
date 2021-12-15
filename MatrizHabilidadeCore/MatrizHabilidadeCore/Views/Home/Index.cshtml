@@ -1,0 +1,70 @@
+﻿@model Dictionary<string, string>
+
+@{
+    ViewBag.Title = "Matriz de Habilidade";
+}
+
+@section buttons{
+    @if (Annimar.Session.Cookie.Get().Usu_acesso <= (int)NivelAcesso.Administrador)
+    {
+        <a href="/MatrizHabilidade/Cadastro" title="Cadastro">
+            <img src="~/Content/images/icons/engrenagem.png" />
+        </a>
+    }
+
+    <a href="/Home/Portal" title="Portal">
+        <img src="~/Content/images/icons/Icones-07.png" />
+    </a>
+
+    @if (Annimar.Session.Cookie.Get().Usu_acesso <= (int)NivelAcesso.Coordenador)
+    {
+        <a href="/MatrizHabilidade/Formulario" title="Formulários">
+            <img src="~/Content/images/icons/Icones-10.png" />
+        </a>
+    }
+
+    @if (Annimar.Session.Cookie.Get().Usu_acesso <= (int)NivelAcesso.Administrador)
+    {
+        <a href="/MatrizHabilidade/PlanoAcao" title="Plano de Ação">
+            <img class="icon-plano-acao" src="~/Content/images/icons/Icones Plano de ação-07.svg" />
+        </a>
+    }
+}
+
+@section js{
+
+    @if (Annimar.Session.Cookie.Get().Usu_acesso == (int)NivelAcesso.Funcionario)
+    {
+        <script>
+            if (screen.width < 750) {
+
+                window.location = '/MatrizHabilidade/Formulario';
+            }
+        </script>
+    }
+
+}
+
+<div id="HomeContainer" class="main flex-row">
+
+    @foreach (var planta in Model)
+    {
+        <a class="canvas" href="/MatrizHabilidade/Planta?planta=@planta.Key">
+            <p>Planta</p>
+            <h4>@planta.Value</h4>
+        </a>
+    }
+
+</div>
+
+@if (TempData["Message"] != null)
+{
+    <div class="modal modal-alert" id="MessageModal" tabindex="-1" role="dialog">
+        <div>
+            <div>
+                <p>@TempData["Message"]</p>
+            </div>
+            <a href="#" class="close"><div><span>x</span></div></a>
+        </div>
+    </div>
+}

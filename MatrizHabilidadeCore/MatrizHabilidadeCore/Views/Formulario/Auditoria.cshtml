@@ -1,0 +1,371 @@
+﻿@model MatrizHabilidade.ViewModel.Formulario.AuditoriaViewModel
+
+@{
+    ViewBag.Title = "Matriz de Habilidade - Formulário de Auditorias";
+}
+
+@section buttons{
+    <a href="/MatrizHabilidade/Formulario" title="Lista de Formulários">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+}
+
+@section js{
+    <script src="~/Content/js/jquery.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+    <script src="~/Content/js/jquery.validate.min.js"></script>
+
+    <script src="~/Content/js/main.v6.js"></script>
+    <script src="~/Content/js/flip.v2.js"></script>
+
+    <script src="~/Content/js/auditoria.v7.js"></script>
+}
+
+@section css{
+    <link href="~/Content/modal/modal.v5.css" rel="stylesheet" />
+    <link href="~/Content/css/flip.css" rel="stylesheet" />
+    <link href="~/Content/css/formulario.v21.css" rel="stylesheet" />
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        <h3>Formulários - Auditorias</h3>
+    </div>
+</div>
+
+<div id="AuditoriaContainer" class="main">
+
+    <form id="FormularioAuditoria" action="/MatrizHabilidade/Formulario/CadastrarAuditoria" method="post">
+
+        <div class="panel">
+            <div class="front flex-center">
+                <div class="inside flex-column">
+                    <div class="canvas user-info flex-column">
+
+                        <div class="flex-row">
+                            <div>
+                                <img src="~/Content/images/icons/01 - User-01.png" />
+                            </div>
+                            <input type="text" disabled name="name" value="@Model.UserName" />
+                        </div>
+                        <div class="flex-row">
+                            <div>
+                                <img src="~/Content/images/icons/02 - Email-01.png" />
+                            </div>
+                            <input type="text" disabled name="name" value="@Model.Email" />
+                        </div>
+
+                    </div>
+
+                    @if (Model.Acesso <= NivelAcesso.Administrador)
+                    {
+                        <div class="flex-column">
+                            <div class="canvas title">
+                                <h3>Filtro de Área</h3>
+                            </div>
+                            <div class="canvas flex-column flex-center">
+                                <div class="radio-container overflow-scroll">
+                                    @for (var x = 0; x < Model.Areas.Count; x++)
+                                    {
+                                        <div>
+                                            <input type="radio" id="Area_@x" name="Area" onchange="filtrarAreaAuditoria(this)" value="@Model.Areas.ElementAt(x).Key" />
+                                            <label for="Area_@x">@Model.Areas.ElementAt(x).Value</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Maquinas.Count > 1)
+                    {
+                        <div class="flex-column">
+                            <div class="canvas title">
+                                <h3>Filtro de Máquina</h3>
+                            </div>
+                            <div class="canvas flex-column flex-center">
+                                <div id="MaquinaContainer" class="radio-container overflow-scroll">
+                                    @for (var x = 0; x < Model.Maquinas.Count; x++)
+                                    {
+                                        <div>
+                                            <input type="radio" id="Maquina_@x" name="Maquina" onchange="filtrarMaquinaAuditoria(this)" value="@Model.Maquinas.ElementAt(x).Key" />
+                                            <label for="Maquina_@x">@Model.Maquinas.ElementAt(x).Value</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="flex-column">
+                        <div class="canvas title">
+                            <h3>Padrão</h3>
+                        </div>
+                        <div class="canvas flex-column flex-center">
+
+                            <div class="busca-operador flex-row">
+                                <input type="text" name="filtroPadrao" value="" />
+                                <div>
+                                    <button type="button" onclick="filtrarPadraoAuditoria()">
+                                        <img src="~/Content/images/icons/03 - Seta-01.png" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="PadraoContainer" class="radio-container overflow-scroll">
+                                @for (var x = 0; x < Model.Padroes.Count; x++)
+                                {
+                                    <div>
+                                        <input type="radio" id="Padrao_@x" name="Padrao" onchange="buscarOperadores()" value="@Model.Padroes.ElementAt(x).Key" />
+                                        <label for="Padrao_@x">@Model.Padroes.ElementAt(x).Value</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="flex-column">
+                        <div class="canvas title">
+                            <h3>Profissional</h3>
+                        </div>
+
+                        <div class="canvas title">
+                            <p class="flex-row"><span class="dot vermelho"></span> = Pendente de auditoria</p>
+                            <p class="flex-row"><span class="dot amarelo"></span> = Não atingiu a meta desejável "Auditar Novamente"</p>
+                            <p class="flex-row"><span class="dot disabled"></span> = Profissional pendente de treinamento</p>
+                            <p class="flex-row"><span class="dot verde"></span> = Auditado</p>
+                        </div>
+
+                        <div class="canvas flex-column flex-center">
+
+                            <div class="busca-operador flex-row">
+                                <input type="text" name="filtroOperador" value="" />
+                                <div>
+                                    <button type="button" onclick="buscarOperadores()">
+                                        <img src="~/Content/images/icons/03 - Seta-01.png" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="OperadorContainer" class="radio-container overflow-scroll"></div>
+                        </div>
+                    </div>
+
+
+                    <button type="button" onclick="proximaPaginaAuditoria()">Iniciar</button>
+                </div>
+            </div>
+            <div class="back flex-center align-items-start">
+
+                <div class="inside flex-column">
+                    <div class="canvas user-info flex-column">
+
+                        <div class="flex-row">
+                            <div>
+                                <img src="~/Content/images/icons/01 - User-01.png" />
+                            </div>
+                            <input type="text" disabled name="name" value="@Model.UserName" />
+                        </div>
+                        <div class="flex-row">
+                            <div>
+                                <img src="~/Content/images/icons/02 - Email-01.png" />
+                            </div>
+                            <input type="text" disabled name="name" value="@Model.Email" />
+                        </div>
+
+                    </div>
+
+                    <div class="flex-column">
+                        <div class="canvas title">
+                            <h3>Itens para Verificação</h3>
+                        </div>
+
+                        @for (var x = 0; x < Model.Perguntas.Count; x++)
+                        {
+                            <div class="canvas flex-column pergunta">
+
+                                <div>
+                                    <p>@Model.Perguntas.ElementAt(x).Value</p>
+                                    <span></span>
+                                </div>
+                                <div class="radio-container">
+                                    <div>
+                                        <input required type="radio" id="PerguntaOK_@x" name="Perguntas[@Model.Perguntas.ElementAt(x).Key]" value="true" />
+                                        <label for="PerguntaOK_@x">OK</label>
+                                    </div>
+                                    <div>
+                                        <input required type="radio" id="PerguntaNOK_@x" name="Perguntas[@Model.Perguntas.ElementAt(x).Key]" value="false" />
+                                        <label for="PerguntaNOK_@x">NOK</label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <div class="inside flex-row">
+                        <button type="button" onclick="flip()">Voltar</button>
+                        <button type="submit">Enviar Auditoria</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+<div class="modal modal-alert" id="ModalPerguntaPlanoAcao" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+            <p>Essa auditoria requer uma ação corretiva?</p>
+            <div class="flex-row w-100">
+                <button onclick="showModal('ModalRetreino'); hideModal('ModalPerguntaPlanoAcao');">Sim</button>
+                <button onclick="showModal('ModalRealizarAuditoria'); hideModal('ModalPerguntaPlanoAcao');">Não</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="ModalNotificacaoPlanoAcao" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+            <p>Meta desejada: <span id="Meta"></span></p>
+            <p>Resultado da auditoria de padrão: <span id="Nota"></span></p>
+            <p>Esse resultado requer de uma ação corretiva</p>
+            <div class="flex-row w-100">
+                <button onclick="showModal('ModalRetreino'); hideModal('ModalNotificacaoPlanoAcao');">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="ModalRealizarAuditoria" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+            <p>Você deseja realizar uma nova auditoria?</p>
+            <div class="flex-row w-100">
+                <button onclick="finalizarAuditoria(true);">Sim</button>
+                <button onclick="finalizarAuditoria(false);">Não</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="ModalRetreino" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column text-center">
+            <p>Esse profissional precisa ser retreinado?</p>
+            <div class="flex-row w-100">
+                <button onclick="retreinar()">Sim</button>
+                <button onclick="hideModal('ModalRetreino'); showModal('ModalPlanoAcao')">Não</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="ModalPlanoAcao" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+
+            <form id="FormularioPlanoAcao" method="post">
+
+                <input type="hidden" name="IsCoordenador" value="false" />
+
+                <div class="canvas">
+                    <p>Plano de Ação</p>
+                </div>
+
+                <div class="canvas flex-column">
+
+                    <div class="mb-2 flex-column max-width-100">
+                        <label>Descreva a ação corretiva:</label>
+                        <textarea name="Descricao" required></textarea>
+                    </div>
+                    <div class="mb-2 flex-column max-width-100">
+                        <label>Unidade do responsável pela resolução da ação:</label>
+                        <select name="filtroPlantaPlanoAcao" onchange="filtrarResponsavelPlanoAcao()">
+                            <option value="">Todos</option>
+                            @foreach (var planta in Model.FiltroPlantaPlanoAcao)
+                            {
+                                <option value="@planta.Key">@planta.Value</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-2 flex-column max-width-100">
+                        <label>Área do responsável pela resolução da ação:</label>
+                        <select name="filtroAreaPlanoAcao" onchange="filtrarResponsavelPlanoAcao()">
+                            <option value="">Todos</option>
+                            @foreach (var area in Model.FiltroAreaPlanoAcao)
+                            {
+                                <option value="@area.Key">@area.Value</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-2 flex-column max-width-100">
+                        <label>Nome do responsável pela resolução da ação:</label>
+                        <select name="ResponsavelPlanoAcao" required onchange="onResponsavelPlanoAcaoChanged()">
+                            <option value="">Todos</option>
+                            @foreach (var responsavel in Model.ResponsavelPlanoAcao)
+                            {
+                                <option value="@responsavel.Key">@responsavel.Value</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-2 flex-column">
+                        <label>Prazo para conclusão da ação:</label>
+                        <input type="date" name="Prazo" value="" required />
+                    </div>
+
+                </div>
+
+                <div class="flex-row w-100">
+                    <button type="button" id="ConcelarAuditoria" onclick="hideModal('ModalPlanoAcao'); showModal('ModalRealizarAuditoria')">Cancelar</button>
+                    <button type="submit">Finalizar</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="ModalOutroPlanoAcao" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column text-center">
+            <p>Você deseja incluir uma nova ação corretiva?</p>
+            <div class="flex-row w-100">
+                <button onclick="limparPlanoAcao()">Sim</button>
+                <button onclick="hideModal('ModalOutroPlanoAcao'); showModal('ModalRealizarAuditoria')">Não</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalAlerta" tabindex="-1" role="dialog">
+    <div>
+        <div>
+            <p class="margin-auto"></p>
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalObrigado" tabindex="-1" role="dialog">
+    <div>
+        <div>
+            <p class="margin-auto">Obrigado</p>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalProfissionalDesabilitado" tabindex="-1" role="dialog">
+    <div>
+        <div>
+            <p class="margin-auto">Profissional ainda não treinado</p>
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>

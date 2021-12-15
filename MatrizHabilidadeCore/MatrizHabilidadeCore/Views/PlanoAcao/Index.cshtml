@@ -1,0 +1,414 @@
+﻿@model MatrizHabilidade.ViewModel.PlanoAcaoViewModel
+
+@{
+    ViewBag.Title = "Plano de Ação";
+    int selectedYear = Util.Cookie.Get().Ano;
+}
+
+@section css{
+    <link href="~/Content/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/virtual-select/virtual-select.min.css" rel="stylesheet" />
+    <link href="~/Content/css/plano-acao.v13.css" rel="stylesheet" />
+}
+
+@section js{
+
+    <script src="~/Content/highcharts/highcharts.js"></script>
+    <script src="~/Content/highcharts/exporting.js"></script>
+    <script src="~/Content/highcharts/export-data.js"></script>
+    <script src="~/Content/highcharts/accessibility.js"></script>
+
+    <script src="~/Content/js/plano-acao.v2.js"></script>
+
+    <script src="~/Content/js/tableToExcel.js"></script>
+
+    <script src="~/Content/virtual-select/virtual-select.min.js"></script>
+    <script src="~/Content/virtual-select/virtual-select.init.v2.js"></script>
+
+    <script src="~/Content/js/jquery.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.50/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+    <script src="~/Content/js/datatable.init.v1.js"></script>
+
+    <script src="~/Content/js/table-export/blob.min.js"></script>
+    <script src="~/Content/js/table-export/xlsx.js"></script>
+    <script src="~/Content/js/table-export/filesaver.min.js"></script>
+    <script src="~/Content/js/table-export/tableexport.min.js"></script>
+
+    <script>
+
+        @Html.Raw(Model.GraficoAcompanhamento)
+
+    </script>
+}
+
+@section buttons{
+    <a href="@Model.ReturnUrl" title="Voltar">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+
+    @if (Annimar.Session.Cookie.Get().Usu_acesso <= (int)NivelAcesso.Administrador)
+    {
+        <a href="#" title="Filtro" class="desktop-only" onclick="showModal('ModalFiltro')">
+            <img src="~/Content/images/icons/Icones-04.png" />
+        </a>
+    }
+
+    <a href="#" class="desktop-only" onclick="tableToExcel('TabelaAcoes')" title="Excel">
+        <img src="~/Content/images/Excel.png" />
+    </a>
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        @for (var x = 0; x < Model.SiteMap.Count; x++)
+        {
+            <h3>@Model.SiteMap[x]</h3>
+            <h3 class="arrow">&#8250;</h3>
+        }
+
+        <h3>Plano de Ações</h3>
+    </div>
+</div>
+
+<div class="main flex-column flex-nowrap">
+
+    <div class="container-fluid flex-column h-100 flex-nowrap">
+
+        <div id="Year" class="flex-row">
+            <form action="/MatrizHabilidade/Home/ChangeYear" method="get">
+
+                <input type="hidden" name="returnurl" value="@Request.Url.PathAndQuery" />
+
+                <label>Fiscal Year</label>
+                <div class="styled-select">
+                    <select onchange="this.form.submit()" name="ano">
+                        @foreach (var ano in ViewBag.Anos)
+                        {
+                            <option value="@ano" @(selectedYear == ano ? "selected" : "")>@ano.ToString().Substring(2)</option>
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="row d-flex mb-3">
+
+            <div class="d-flex col-6 pl-0">
+                <div class="canvas flex-grow-1">
+                    <div class="canvas title flex-center">
+                        <h4 class="text-center m-0">GAP de Ações Corretivas</h4>
+                    </div>
+                    <div class="chart mt-3">
+                        <div class="c100 p@(Model.GAPAcaoCorretiva.ToString()) @Model.GAPAcaoCorretiva.GetFarol() center">
+                            <span>@(Model.GAPAcaoCorretiva)%</span>
+                            <div class="slice">
+                                <div class="bar"></div>
+                                <div class="fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex col-6 pr-0">
+                <div class="canvas mb-md-0 flex-grow-1 flex-column">
+
+                    <div class="canvas title flex-center">
+                        <h4 class="text-center m-0">Status Atividades</h4>
+                    </div>
+
+                    <div class="flex-row">
+                        <div class="margin-auto" id="GraficoAcompanhamento"></div>
+
+                        <div class="flex-column margin-auto">
+                            <table data-isdatatable="false">
+                                <tr>
+                                    <td>Concluídas</td>
+                                    <td class="concluido">@(Model.TabelaStatusAtividade.PorcentagemConcluida)%</td>
+                                    <td>@(Model.TabelaStatusAtividade.Concluida)</td>
+                                </tr>
+                                <tr>
+                                    <td>Concluídas com Atraso</td>
+                                    <td class="concluido-atraso">@(Model.TabelaStatusAtividade.PorcentagemConcluidaAtraso)%</td>
+                                    <td>@(Model.TabelaStatusAtividade.ConcluidaAtraso)</td>
+                                </tr>
+                                <tr>
+                                    <td>Atrasadas</td>
+                                    <td class="atrasado">@(Model.TabelaStatusAtividade.PorcentagemAtrasada)%</td>
+                                    <td>@(Model.TabelaStatusAtividade.Atrasada)</td>
+                                </tr>
+                                <tr>
+                                    <td>Em Andamento</td>
+                                    <td class="em-andamento">@(Model.TabelaStatusAtividade.PorcentagemAndamento)%</td>
+                                    <td>@(Model.TabelaStatusAtividade.Andamento)</td>
+                                </tr>
+                            </table>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row flex-grow-1 h-25">
+            <div class="col-12 canvas perfect-scroll h-100">
+                <div class="input-container mb-2">
+                    <form method="get">
+                        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                        <input type="hidden" name="planta" value="@Model.PlantasKey" />
+                        <input type="hidden" name="area" value="@Model.AreasKey" />
+                        <input type="hidden" name="maquina" value="@Model.MaquinasKey" />
+                        <div class="virtual-select" data-position="bottom" data-hidden-input-name="status">
+                            <select name="status" multiple>
+                                <option style="display: none">Status</option>
+                                <option @(Model.Status.Contains(1) ? "selected" : "") value="1">Concluído</option>
+                                <option @(Model.Status.Contains(2) ? "selected" : "") value="2">Em Andamento</option>
+                                <option @(Model.Status.Contains(3) ? "selected" : "") value="3">Atrasado</option>
+                                <option @(Model.Status.Contains(4) ? "selected" : "") value="4">Concluído com Atraso</option>
+                            </select>
+                        </div>
+                        <button type="submit">
+                            <img src="~/Content/images/icons/Icones-04.png" />
+                        </button>
+                    </form>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Área</th>
+                            <th>Máquina</th>
+                            <th>Coordenador</th>
+                            <th>Item</th>
+                            <th>Data de Criação</th>
+                            <th class="w-75 acao">Ação</th>
+                            <th>Responsável pela Ação</th>
+                            <th>Prazo</th>
+                            <th>Status</th>
+                            <th>OK</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var linha in Model.TabelaPlanoAcao)
+                        {
+                            <tr data-key="@linha.Key">
+                                <td class="text-nowrap">@linha.Area</td>
+                                <td class="text-nowrap">@linha.Maquina</td>
+                                <td class="text-nowrap">@linha.Coordenador</td>
+                                <td>@linha.Index</td>
+                                <td>@linha.DataCriacao</td>
+                                <td>@linha.Acao</td>
+                                <td class="text-nowrap">@linha.Responsavel</td>
+                                <td>@linha.Prazo</td>
+                                <td class="status @linha.StatusClass text-nowrap">@linha.Status</td>
+                                <td class="buttons">
+
+                                    @if (linha.HasEvidencia)
+                                    {
+                                        <input type="checkbox" checked readonly onclick="return false" />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" data-key="@linha.Key" onchange="showModal('modalFinalizarPlanoAcao')" />
+                                    }
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal modal-alert" id="modalAdicionarEvidencia" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+            <div class="upload-container">
+                <input type="file" multiple name="Evidencias" value="" />
+                <div class="alerta">
+                    <p>Arraste e solte seus arquivos</p>
+                </div>
+                <div class="arquivo-container perfect-scroll">
+                    <ul></ul>
+                </div>
+            </div>
+            <button onclick="document.querySelector('[name=Evidencias]').click()">Adicionar arquivo</button>
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalFinalizarPlanoAcao" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column text-center">
+            <p>Deseja finalizar a Ação?</p>
+            <div class="flex-row w-100">
+                <button onclick="finalizarPlanoAcao()">Sim</button>
+                <button onclick="cancelarFinalizacao()">Não</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalExibirEvidencia" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+            <h3>Selecione um Arquivo</h3>
+            <div class="w-100">
+                <ul class="perfect-scroll"></ul>
+            </div>
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalArquivo" tabindex="-1" role="dialog">
+    <div>
+        <div>
+            <iframe></iframe>
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalAlerta" tabindex="-1" role="dialog">
+    <div>
+        <div>
+            <p class="margin-auto"></p>
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="ModalFiltro" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+
+            <form action="/MatrizHabilidade/PlanoAcao" method="get" class="w-75">
+
+                <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+
+                <div class="canvas flex-column mb-3">
+                    <div class="title mb-2">
+                        <span>Filtro de Planta</span>
+                    </div>
+                    <div class="flex-column flex-center">
+                        <div class="styled-select m-0 w-100">
+                            <select onchange="filtrarPlanoAcao()" name="planta">
+                                <option value="">Todas</option>
+                                @foreach (var planta in Model.Plantas.Value.Options)
+                                {
+                                    <option @(planta.Key == Model.Plantas.Value.SelectedKey ? "selected" : "") value="@planta.Key">@planta.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="canvas flex-column mb-3">
+                    <div class="title mb-2">
+                        <span>Filtro de Área</span>
+                    </div>
+                    <div class="flex-column flex-center">
+                        <div class="styled-select m-0 w-100">
+                            <select onchange="filtrarPlanoAcao()" name="area">
+                                <option value="">Todas</option>
+                                @foreach (var area in Model.Areas.Value.Options)
+                                {
+                                    <option @(area.Key == Model.Areas.Value.SelectedKey ? "selected" : "") value="@area.Key">@area.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="canvas flex-column mb-3">
+                    <div class="title mb-2">
+                        <span>Filtro de Máquinas</span>
+                    </div>
+                    <div class="flex-column flex-center">
+                        <div class="styled-select m-0 w-100">
+                            <select onchange="filtrarPlanoAcao()" name="maquina">
+                                <option value="">Todas</option>
+                                @foreach (var maquina in Model.Maquinas.Value.Options)
+                                {
+                                    <option @(maquina.Key == Model.Maquinas.Value.SelectedKey ? "selected" : "") value="@maquina.Key">@maquina.Value</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-align-center">
+                    <button type="submit">Filtrar</button>
+                </div>
+            </form>
+
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>
+
+<div class="hidden">
+
+    <table id="TabelaAcoes" data-cols-width="30,10,60,10,100,60,15,20,15" data-isdatatable="false">
+        <thead>
+            <tr>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Área</th>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Máquina</th>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Coordenador</th>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Item</th>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Ação</th>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Responsável pela Ação</th>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Prazo</th>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Status</th>
+                <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="false">Obs.</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var acao in Model.TabelaPlanoAcao)
+            {
+                <tr>
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="ebebeb">@acao.Area</td>
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="ebebeb">@acao.Maquina</td>
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="ebebeb">@acao.Coordenador</td>
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="ebebeb">@acao.Index</td>
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="ebebeb" data-a-wrap="true">@acao.Acao</td>
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="ebebeb">@acao.Responsavel</td>
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="ebebeb">@acao.Prazo</td>
+
+                    @if (acao.StatusClass == "atrasado")
+                    {
+                        <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="CA2024" data-f-color="ffffff">@acao.Status</td>
+                    }
+                    else if (acao.StatusClass == "em-andamento")
+                    {
+                        <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="DF7E26" data-f-color="ffffff">@acao.Status</td>
+                    }
+                    else
+                    {
+                        <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="A1DD00" data-f-color="ffffff">@acao.Status</td>
+                    }
+
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-fill-color="ebebeb">@(acao.HasEvidencia ? "Sim" : "Não")</td>
+                </tr>
+            }
+            <tr>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

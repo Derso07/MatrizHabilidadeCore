@@ -1,0 +1,904 @@
+﻿@{
+    ViewBag.Title = "Cadastro";
+}
+
+@section buttons{
+    <a href="/MatrizHabilidade/" title="Início">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+}
+
+@section js{
+    <script src="~/Content/js/tab.js"></script>
+    <script src="~/Content/js/jquery.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+    <script src="~/Content/js/data-binder.v3.js"></script>
+    <script src="~/Content/js/cadastro.v8.js"></script>
+
+    <script src="~/Content/spectrum/spectrum.js"></script>
+    <script src="~/Content/spectrum/spectrum.init.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.22/b-1.6.5/b-html5-1.6.5/fh-3.1.7/datatables.min.js"></script>
+}
+
+@section css{
+    <link href="~/Content/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/spectrum/spectrum.css" rel="stylesheet" />
+    <link href="~/Content/modal/modal.v5.css" rel="stylesheet" />
+    <link href="~/Content/css/cadastro.v9.css" rel="stylesheet" />
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        <h3>Cadastro</h3>
+    </div>
+</div>
+
+<div class="main flex-column">
+
+    <div class="flex-row">
+        <div id="Menu" class="flex-column canvas perfect-scroll">
+            <div class="menu-tab selected" onclick="changeTab(this); Binder.Bind('/MatrizHabilidade/Cadastro/LimparUnidade')" data-type="Unidade">Unidade</div>
+            <div class="menu-tab" onclick="changeTab(this); Binder.Bind('/MatrizHabilidade/Cadastro/LimparMaquina')" data-type="Maquina">Máquina</div>
+            <div class="menu-tab" onclick="changeTab(this); Binder.Bind('/MatrizHabilidade/Cadastro/LimparTipoTreinamento')" data-type="TipoTreinamento">Tipo de Treinamento</div>
+            <div class="menu-tab" onclick="changeTab(this); Binder.Bind('/MatrizHabilidade/Cadastro/LimparTreinamento')" data-type="Treinamento">Treinamentos Comuns</div>
+            <div class="menu-tab" onclick="changeTab(this); Binder.Bind('/MatrizHabilidade/Cadastro/LimparTreinamentoEspecifico')" data-type="TreinamentoEspecifico">Treinamentos Específicos</div>
+            <div class="menu-tab" onclick="changeTab(this); Binder.Bind('/MatrizHabilidade/Cadastro/LimparCategoria')" data-type="Categoria">Categoria</div>
+            <div class="menu-tab" onclick="changeTab(this); Binder.Bind('/MatrizHabilidade/Cadastro/LimparFacilitador')" data-type="Facilitador">Facilitador</div>
+            <div class="menu-tab" onclick="changeTab(this); Binder.Bind('/MatrizHabilidade/Cadastro/LimparCoordenador')" data-type="Coordenador">Coordenador</div>
+        </div>
+
+        <div class="canvas tab selected" data-type="Unidade">
+
+            <form id="FormUnidade" action="/MatrizHabilidade/Cadastro/CadastrarUnidade" method="post">
+
+                <input type="hidden" name="Unidade" value="" />
+                <input type="hidden" name="FiltroMostrarDesativadosUnidade" value="false" />
+
+                <div class="flex-row">
+                    <div class="input-container">
+                        <label>Descrição da Unidade</label>
+                        <input type="text" name="DescricaoUnidade" value="" />
+                    </div>
+
+                    <div class="input-container">
+                        <label>Unidade no BDados</label>
+                        <div class="styled-select">
+                            <select name="PlantaBdados"></select>
+                        </div>
+                    </div>
+
+                    <div id="DesativarUnidadeContainer" class="input-container" style="display: none">
+                        <div class="checkbox-container">
+                            <label>Desativar</label>
+                            <input type="checkbox" name="DesativarUnidade" onclick="mostrarModalDesativar(this)" value="true" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-container flex-column">
+
+                    <button type="submit">
+                        <img src="~/Content/images/icons8-save-60.png" />
+                    </button>
+
+                    <button type="button" onclick="Binder.Bind('/MatrizHabilidade/Cadastro/LimparUnidade')">
+                        <img src="~/Content/images/icons8-erase-60.png" />
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="canvas tab" data-type="Maquina">
+
+            <form id="FormMaquina" action="/MatrizHabilidade/Cadastro/CadastrarMaquina" method="post">
+
+                <input type="hidden" name="Maquina" value="" />
+                <input type="hidden" name="FiltroUnidadeTabelaMaquina" value="" />
+                <input type="hidden" name="FiltroAreaTabelaMaquina" value="" />
+                <input type="hidden" name="FiltroCoordenadorTabelaMaquina" value="" />
+                <input type="hidden" name="FiltroMostrarDesativadosMaquina" value="false" />
+
+                <div class="flex-column">
+
+                    <div class="flex-column">
+
+                        <div class="title-filtro">
+                            <span>Filtros</span>
+                            <img src="~/Content/images/icons/icon filtro.png" />
+                        </div>
+
+                        <div class="flex-row">
+
+                            <div class="input-container">
+                                <label>Filtro por Unidade</label>
+                                <div class="styled-select">
+                                    <select name="FiltroPlantaMaquina" onchange="filtrarMaquina()"></select>
+                                </div>
+                            </div>
+
+                            <div class="input-container">
+                                <label>Filtro por Área</label>
+                                <div class="styled-select">
+                                    <select name="FiltroAreaMaquina" onchange="filtrarMaquina()"></select>
+                                </div>
+                            </div>
+
+                            <div class="input-container">
+                                <label>Filtro por Responsáveis</label>
+                                <div class="styled-select">
+                                    <select name="FiltroCoordenadorMaquina" onchange="filtrarMaquina()"></select>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="flex-row">
+                        <div class="input-container">
+                            <label>Descrição da Máquina</label>
+                            <input type="text" name="DescricaoMaquina" value="" />
+                        </div>
+
+                        <div class="input-container flex-row">
+
+                            <div class="input-container">
+                                <label>Uniorg</label>
+                                <div class="styled-select">
+                                    <select name="UniorgMaquina" onchange="onUniorgSelected(this)"></select>
+                                </div>
+                            </div>
+
+
+                            <div class="selected-items">
+                                <h5>Uniorgs Selecionadas</h5>
+                                <div>
+                                    <ul id="UniorgContainer" class="content perfect-scroll"></ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="input-container">
+                            <label>Categoria</label>
+                            <div class="styled-select">
+                                <select name="CategoriaMaquina"></select>
+                            </div>
+                        </div>
+
+                        <div id="DesativarMaquinaContainer" class="input-container" style="display: none">
+                            <div class="checkbox-container">
+                                <label>Desativar</label>
+                                <input type="checkbox" name="DesativarMaquina" onclick="mostrarModalDesativar(this)" value="true" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="button-container flex-column">
+
+                    <button type="submit">
+                        <img src="~/Content/images/icons8-save-60.png" />
+                    </button>
+
+                    <button type="button" onclick="Binder.Bind('/MatrizHabilidade/Cadastro/LimparMaquina')">
+                        <img src="~/Content/images/icons8-erase-60.png" />
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="canvas tab" data-type="TipoTreinamento">
+
+            <form id="FormTipoTreinamento" action="/MatrizHabilidade/Cadastro/CadastrarTipoTreinamento" method="post">
+
+                <input type="hidden" name="TipoTreinamento" value="" />
+                <input type="hidden" name="FiltroMostrarDesativadosTipoTreinamento" value="false" />
+
+                <div class="flex-column">
+
+                    <div class="flex-column">
+
+                        <div class="title-filtro">
+                            <span>Filtros</span>
+                            <img src="~/Content/images/icons/icon filtro.png" />
+                        </div>
+
+                        <div class="flex-row">
+
+                            <div class="input-container">
+                                <label>Filtro por Unidade</label>
+                                <div class="styled-select">
+                                    <select name="FiltroPlantaTipoTreinamento" onchange="filtrarTipoTreinamento()"></select>
+                                </div>
+                            </div>
+
+                            <div class="input-container">
+                                <label>Filtro por Área</label>
+                                <div class="styled-select">
+                                    <select name="FiltroAreaTipoTreinamento" onchange="filtrarTipoTreinamento()"></select>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="flex-row">
+                        <div class="input-container">
+                            <label>Descrição do Tipo de Treinamento</label>
+                            <input type="text" name="DescricaoTipoTreinamento" value="" />
+                        </div>
+
+                        <div class="input-container">
+                            <label>Cor do Título</label>
+                            <input type="color" name="CorTituloTipoTreinamento" value="" />
+                        </div>
+
+                        <div class="input-container">
+                            <label>Cor dos Treinamentos</label>
+                            <input type="color" name="CorTreinamentoTipoTreinamento" value="" />
+                        </div>
+
+                        <div class="input-container">
+                            <label>Cor da Fonte</label>
+                            <input type="color" name="CorFonteTipoTreinamento" value="" />
+                        </div>
+
+                        <div class="input-container flex-row">
+
+                            <div class="input-container">
+                                <label>Máquina</label>
+                                <div class="styled-select">
+                                    <select name="MaquinaTipoTreinamento" onchange="onMaquinaTipoTreinamentoSelected(this)"></select>
+                                </div>
+                            </div>
+
+
+                            <div class="selected-items">
+                                <h5>Máquinas Selecionadas</h5>
+                                <div>
+                                    <ul id="MaquinaTipoTreinamentoContainer" class="content perfect-scroll"></ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="input-container flex-row">
+
+                            <div class="input-container">
+                                <label>Categoria</label>
+                                <div class="styled-select">
+                                    <select name="CategoriaTipoTreinamento" onchange="onCategoriaTipoTreinamentoSelected(this)"></select>
+                                </div>
+                            </div>
+
+
+                            <div class="selected-items">
+                                <h5>Categorias Selecionadas</h5>
+                                <div>
+                                    <ul id="CategoriaTipoTreinamentoContainer" class="content perfect-scroll"></ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="DesativarTipoTreinamentoContainer" class="input-container" style="display: none">
+                            <div class="checkbox-container">
+                                <label for="DesativarTipoTreinamento">Desativar</label>
+                                <input type="checkbox" id="DesativarTipoTreinamento" name="DesativarTipoTreinamento" onclick="mostrarModalDesativar(this)" value="true">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="button-container flex-column">
+
+                    <button type="submit">
+                        <img src="~/Content/images/icons8-save-60.png" />
+                    </button>
+
+                    <button type="button" onclick="Binder.Bind('/MatrizHabilidade/Cadastro/LimparTipoTreinamento')">
+                        <img src="~/Content/images/icons8-erase-60.png" />
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="canvas tab" data-type="Treinamento">
+
+            <form id="FormTreinamento" action="/MatrizHabilidade/Cadastro/CadastrarTreinamento" method="post">
+
+                <input type="hidden" name="Treinamento" value="" />
+                <input type="hidden" name="FiltroTipoTabelaTreinamento" value="" />
+                <input type="hidden" name="FiltroMostrarDesativadosTreinamento" value="false" />
+
+                <div class="flex-row">
+
+                    <div class="input-container">
+                        <label>Descrição do Treinamento</label>
+                        <input type="text" name="DescricaoTreinamento" value="" />
+                    </div>
+
+
+                    <div class="input-container">
+                        <label>Tipo de Treinamento</label>
+                        <div class="styled-select">
+                            <select name="TipoTreinamento"></select>
+                        </div>
+                    </div>
+
+                    <div id="DesativarTreinamentoContainer" class="input-container" style="display: none">
+                        <div class="checkbox-container">
+                            <label>Desativar</label>
+                            <input type="checkbox" name="DesativarTreinamento" onclick="mostrarModalDesativar(this)" value="true" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="button-container flex-column">
+
+                    <button type="submit">
+                        <img src="~/Content/images/icons8-save-60.png" />
+                    </button>
+
+                    <button type="button" onclick="Binder.Bind('/MatrizHabilidade/Cadastro/LimparTreinamento')">
+                        <img src="~/Content/images/icons8-erase-60.png" />
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="canvas tab" data-type="TreinamentoEspecifico">
+
+            <form id="FormTreinamentoEspecifico" action="/" method="post">
+
+                <input type="hidden" name="TreinamentoEspecifico" value="" />
+                <input type="hidden" name="FiltroUnidadeTabelaTreinamentoEspecifico" value="" />
+                <input type="hidden" name="FiltroAreaTabelaTreinamentoEspecifico" value="" />
+                <input type="hidden" name="FiltroMaquinaTabelaTreinamentoEspecifico" value="" />
+                <input type="hidden" name="FiltroDescricaoTreinamentoEspecifico" value="" />
+                <input type="hidden" name="FiltroMostrarDesativadosTreinamentoEspecifico" value="false" />
+
+                <div class="flex-column">
+
+                    <div class="flex-column">
+
+                        <div class="title-filtro">
+                            <span>Filtros</span>
+                            <img src="~/Content/images/icons/icon filtro.png" />
+                        </div>
+
+                        <div class="flex-row">
+
+                            <div class="input-container">
+                                <label>Filtrar Máquinas por Unidade</label>
+                                <div class="styled-select">
+                                    <select onchange="Binder.Bind('/MatrizHabilidade/Cadastro/FiltrarMaquinaTreinamentoEspecifico', { unidade: this.value, area: document.querySelector('[name=FiltroAreaTreinamentoEspecifico]').value })" name="FiltroUnidadeTreinamentoEspecifico"></select>
+                                </div>
+                            </div>
+
+                            <div class="input-container">
+                                <label>Filtrar Máquinas por Área</label>
+                                <div class="styled-select">
+                                    <select onchange="Binder.Bind('/MatrizHabilidade/Cadastro/FiltrarMaquinaTreinamentoEspecifico', { unidade: document.querySelector('[name=FiltroUnidadeTreinamentoEspecifico]').value, area: this.value })" name="FiltroAreaTreinamentoEspecifico"></select>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="flex-row">
+
+                        <div class="input-container">
+                            <label>Descrição do Treinamento Específico</label>
+                            <input type="text" name="DescricaoTreinamentoEspecifico" value="" />
+                        </div>
+
+                        <div class="input-container">
+                            <label>Categoria</label>
+                            <div class="styled-select">
+                                <select name="CategoriaTreinamentoEspecifico"></select>
+                            </div>
+                        </div>
+
+                        <div class="input-container flex-row">
+
+                            <div class="flex-row">
+
+                                <div class="input-container">
+                                    <label>Máquinas</label>
+                                    <div class="styled-select">
+                                        <select onchange="onMaquinaTreinamentoEspecificoSelected(this)" name="MaquinaTreinamentoEspecifico"></select>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="selected-items">
+                                <h5>Máquinas Selecionadas</h5>
+                                <div>
+                                    <ul id="MaquinaTreinamentoEspecificoContainer" class="content perfect-scroll"></ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="DesativarTreinamentoEspecificoContainer" class="input-container" style="display: none">
+                            <div class="checkbox-container">
+                                <label>Desativar</label>
+                                <input type="checkbox" name="DesativarTreinamentoEspecífico" onclick="mostrarModalDesativar(this)" value="true" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="button-container flex-column">
+
+                    <button type="submit">
+                        <img src="~/Content/images/icons8-save-60.png" />
+                    </button>
+
+                    <button type="button" onclick="Binder.Bind('/MatrizHabilidade/Cadastro/LimparTreinamentoEspecifico')">
+                        <img src="~/Content/images/icons8-erase-60.png" />
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="canvas tab" data-type="Categoria">
+
+            <form id="FormCategoria" action="/MatrizHabilidade/Cadastro/CadastrarCategoria" method="post">
+
+                <input type="hidden" name="Categoria" value="" />
+                <input type="hidden" name="FiltroMostrarDesativadosCategoria" value="false" />
+
+                <div class="flex-row">
+                    <div class="input-container">
+                        <label>Descrição da Categoria</label>
+                        <input type="text" name="DescricaoCategoria" value="" />
+                    </div>
+
+                    <div id="DesativarCategoriaContainer" class="input-container" style="display: none">
+                        <div class="checkbox-container">
+                            <label>Desativar</label>
+                            <input type="checkbox" name="DesativarCategoria" onclick="mostrarModalDesativar(this)" value="true" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-container flex-column">
+
+                    <button type="submit">
+                        <img src="~/Content/images/icons8-save-60.png" />
+                    </button>
+
+                    <button type="button" onclick="Binder.Bind('/MatrizHabilidade/Cadastro/LimparCategoria')">
+                        <img src="~/Content/images/icons8-erase-60.png" />
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="canvas tab" data-type="Facilitador">
+
+            <div class="flex-row">
+                <div class="input-container">
+                    <label>Filtro por Unidade</label>
+                    <div class="styled-select">
+                        <select name="FiltroUnidadeFacilitador"></select>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <label>Filtro por Área</label>
+                    <div class="styled-select">
+                        <select name="FiltroAreaFacilitador"></select>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <label>Filtro por Responsável</label>
+                    <div class="styled-select">
+                        <select name="FiltroCoordenadorFacilitador"></select>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <label>Filtro por Máquina</label>
+                    <div class="styled-select">
+                        <select name="FiltroMaquinaFacilitador"></select>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <label>Filtro por Nome/Chapa do Colaborador</label>
+                    <input type="text" name="FiltroNomeFacilitador" value="" />
+                    <button type="button" onclick="filtrarFacilitador()">Filtrar</button>
+                </div>
+            </div>
+
+            <div class="button-container flex-column">
+
+                <button type="button" onclick="BindForm('FormFacilitador')">
+                    <img src="~/Content/images/icons8-save-60.png" />
+                </button>
+
+                <button type="button" onclick="Binder.Bind('/MatrizHabilidade/Cadastro/LimparFacilitador')">
+                    <img src="~/Content/images/icons8-erase-60.png" />
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="canvas tab" data-type="Coordenador">
+
+            <form id="FormCoordenador" action="/MatrizHabilidade/Cadastro/CadastrarCoordenador" method="post">
+
+                <input type="hidden" name="Coordenador" value="" />
+                <input type="hidden" name="FiltroUnidadeTabelaCoordenador" value="" />
+                <input type="hidden" name="FiltroAreaTabelaCoordenador" value="" />
+
+                <div class="flex-column">
+
+                    <div class="flex-column">
+
+                        <div class="title-filtro">
+                            <span>Filtros</span>
+                            <img src="~/Content/images/icons/icon filtro.png" />
+                        </div>
+
+                        <div class="flex-row">
+
+                            <div class="input-container">
+                                <label>Filtro por Unidade</label>
+                                <div class="styled-select">
+                                    <select name="FiltroPlantaCoordenador"></select>
+                                </div>
+                            </div>
+
+                            <div class="input-container">
+                                <label>Filtro por Área</label>
+                                <div class="styled-select">
+                                    <select name="FiltroAreaCoordenador"></select>
+                                </div>
+                            </div>
+
+                            <div id="DesativarCoordenadorContainer" class="input-container" style="display: none">
+                                <div class="checkbox-container">
+                                    <label>Desativar</label>
+                                    <input type="checkbox" name="DesativarCoordenador" onclick="mostrarModalDesativar(this)" value="true" />
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="flex-row">
+
+                        <div class="input-container">
+                            <label>Máquina</label>
+                            <div class="styled-select">
+                                <select name="MaquinaCoordenador"></select>
+                            </div>
+                        </div>
+
+                        <div class="input-container">
+                            <label>Responsável</label>
+                            <div class="styled-select">
+                                <select name="CoordenadorCoordenador"></select>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="button-container flex-column">
+
+                    <button type="submit">
+                        <img src="~/Content/images/icons8-save-60.png" />
+                    </button>
+
+                    <button type="button" onclick="Binder.Bind('/MatrizHabilidade/Cadastro/LimparCoordenador')">
+                        <img src="~/Content/images/icons8-erase-60.png" />
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div class="table-container flex-column canvas tab selected" data-type="Unidade">
+        <div class="title flex-row">
+            <div>
+                <span>Filtros</span>
+                <img src="~/Content/images/icons/icon filtro.png" />
+            </div>
+            <div class="input-container">
+                <div class="checkbox-container">
+                    <label>Exibir Desativados</label>
+                    <input type="checkbox" name="FiltroMostrarDesativadosUnidade" onclick="document.querySelector('input[type=hidden][name=FiltroMostrarDesativadosUnidade]').value = this.checked; Binder.Bind('\\MatrizHabilidade\\Cadastro\\FiltrarUnidade', { isDesativado: this.checked })" value="true" />
+                </div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="perfect-scroll">
+                <table id="TabelaUnidades"></table>
+            </div>
+            <div class="button-container flex-column">
+                <button onclick="this.closest('.table-container').querySelector('.buttons-excel').click()">
+                    <span>Excel</span>
+                </button>
+                <button onclick="this.closest('.table-container').querySelector('.buttons-pdf').click()">
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container flex-column canvas tab" data-type="Maquina">
+        <div class="title flex-row">
+            <div>
+                <span>Filtros</span>
+                <img src="~/Content/images/icons/icon filtro.png" />
+            </div>
+            <div class="styled-select">
+                <select name="FiltroUnidadeTabelaMaquina"></select>
+            </div>
+            <div class="styled-select">
+                <select name="FiltroAreaTabelaMaquina"></select>
+            </div>
+            <div class="styled-select">
+                <select name="FiltroCoordenadorTabelaMaquina"></select>
+            </div>
+            <div class="input-container">
+                <div class="checkbox-container">
+                    <label>Exibir Desativados</label>
+                    <input type="checkbox" name="FiltroMostrarDesativadosMaquina" onclick="filtrarTabelaMaquina(this)" value="true" />
+                </div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="perfect-scroll">
+                <table id="TabelaMaquinas"></table>
+            </div>
+            <div class="button-container flex-column">
+                <button onclick="this.closest('.table-container').querySelector('.buttons-excel').click()">
+                    <span>Excel</span>
+                </button>
+                <button onclick="this.closest('.table-container').querySelector('.buttons-pdf').click()">
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container flex-column canvas tab" data-type="TipoTreinamento">
+        <div class="title flex-row">
+            <div>
+                <span>Filtros</span>
+                <img src="~/Content/images/icons/icon filtro.png" />
+            </div>
+            <div class="input-container">
+                <div class="checkbox-container">
+                    <label>Exibir Desativados</label>
+                    <input type="checkbox" name="FiltroMostrarDesativadosTipoTreinamento" onclick="document.querySelector('input[type=hidden][name=FiltroMostrarDesativadosTipoTreinamento]').value = this.checked; Binder.Bind('/MatrizHabilidade/Cadastro/FiltrarTabelaTipoTreinamento', { isDesativado: this.checked })" value="true" />
+                </div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="perfect-scroll">
+                <table id="TabelaTipoTreinamentos"></table>
+            </div>
+            <div class="button-container flex-column">
+                <button onclick="this.closest('.table-container').querySelector('.buttons-excel').click()">
+                    <span>Excel</span>
+                </button>
+                <button onclick="this.closest('.table-container').querySelector('.buttons-pdf').click()">
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container flex-column canvas tab" data-type="Treinamento">
+        <div class="title flex-row">
+            <div>
+                <span>Filtros</span>
+                <img src="~/Content/images/icons/icon filtro.png" />
+            </div>
+            <div class="styled-select">
+                <select name="FiltroTipoTabelaTreinamento"></select>
+            </div>
+            <div class="input-container">
+                <div class="checkbox-container">
+                    <label>Exibir Desativados</label>
+                    <input type="checkbox" name="FiltroMostrarDesativadosTreinamento" onclick="filtrarTreinamento(this)" value="true" />
+                </div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="perfect-scroll">
+                <table id="TabelaTreinamentos"></table>
+            </div>
+            <div class="button-container flex-column">
+                <button onclick="this.closest('.table-container').querySelector('.buttons-excel').click()">
+                    <span>Excel</span>
+                </button>
+                <button onclick="this.closest('.table-container').querySelector('.buttons-pdf').click()">
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container flex-column canvas tab" data-type="TreinamentoEspecifico">
+        <div class="title flex-row">
+            <div>
+                <span>Filtros</span>
+                <img src="~/Content/images/icons/icon filtro.png" />
+            </div>
+            <div class="styled-select">
+                <select name="FiltroUnidadeTabelaTreinamentoEspecifico"></select>
+            </div>
+            <div class="styled-select">
+                <select name="FiltroAreaTabelaTreinamentoEspecifico"></select>
+            </div>
+            <div class="styled-select">
+                <select name="FiltroMaquinaTabelaTreinamentoEspecifico"></select>
+            </div>
+            <div class="flex-row">
+                <input type="text" name="FiltroDescricaoTreinamentoEspecifico" placeholder="Descrição do Treinamento" value="" />
+                <div>
+                    <button onclick="onFiltroTipoTreinamentoChanged(document.querySelector('[type=text][name=FiltroDescricaoTreinamentoEspecifico]'))" type="button">
+                        buscar
+                    </button>
+                </div>
+            </div>
+            <div class="input-container">
+                <div class="checkbox-container">
+                    <label>Exibir Desativados</label>
+                    <input type="checkbox" name="FiltroMostrarDesativadosTreinamentoEspecifico" onclick="onFiltroTipoTreinamentoChanged(document.querySelector('[type=checkbox][name=FiltroMostrarDesativadosTreinamentoEspecifico]'))" value="true" />
+                </div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="perfect-scroll">
+                <table id="TabelaTreinamentoEspecificos"></table>
+            </div>
+            <div class="button-container flex-column">
+                <button onclick="this.closest('.table-container').querySelector('.buttons-excel').click()">
+                    <span>Excel</span>
+                </button>
+                <button onclick="this.closest('.table-container').querySelector('.buttons-pdf').click()">
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container flex-column canvas tab" data-type="Categoria">
+        <div class="title flex-row">
+            <div>
+                <span>Filtros</span>
+                <img src="~/Content/images/icons/icon filtro.png" />
+            </div>
+            <div class="input-container">
+                <div class="checkbox-container">
+                    <label>Exibir Desativados</label>
+                    <input type="checkbox" name="FiltroMostrarDesativadosCategoria" onclick="document.querySelector('input[type=hidden][name=FiltroMostrarDesativadosCategoria]').value = this.checked; Binder.Bind('\\MatrizHabilidade\\Cadastro\\FiltrarCategoria', { isDesativado: this.checked })" value="true" />
+                </div>
+            </div>
+        </div>
+        <div class="flex-row">
+            <div class="perfect-scroll">
+                <table id="TabelaCategorias"></table>
+            </div>
+            <div class="button-container flex-column">
+                <button onclick="this.closest('.table-container').querySelector('.buttons-excel').click()">
+                    <span>Excel</span>
+                </button>
+                <button onclick="this.closest('.table-container').querySelector('.buttons-pdf').click()">
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container flex-column canvas tab" data-type="Facilitador">
+        <div class="title flex-row"></div>
+        <div class="flex-row">
+            <div class="perfect-scroll">
+                <form id="FormFacilitador" action="/MatrizHabilidade/Cadastro/CadastrarFacilitador" method="post">
+                    <table id="TabelaFacilitadores"></table>
+                </form>
+            </div>
+            <div class="button-container flex-column">
+                <button onclick="this.closest('.table-container').querySelector('.buttons-excel').click()">
+                    <span>Excel</span>
+                </button>
+                <button onclick="this.closest('.table-container').querySelector('.buttons-pdf').click()">
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container flex-column canvas tab" data-type="Coordenador">
+        <div class="title flex-row">
+            <div>
+                <span>Filtros</span>
+                <img src="~/Content/images/icons/icon filtro.png" />
+            </div>
+
+        </div>
+        <div class="flex-row">
+            <div class="perfect-scroll">
+                <table id="TabelaCoordenador"></table>
+            </div>
+            <div class="button-container flex-column">
+                <button onclick="this.closest('.table-container').querySelector('.buttons-excel').click()">
+                    <span>Excel</span>
+                </button>
+                <button onclick="this.closest('.table-container').querySelector('.buttons-pdf').click()">
+                    <span>PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal modal-alert" id="modalDesativar" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+            <p>Tem certeza que deseja desativar esse dado?</p>
+            <div class="flex-row">
+                <button onclick="confirmarDesativacao()">Sim</button>
+                <button onclick="hideModal('modalDesativar')">Não</button>
+            </div>
+        </div>
+        <a class="clickable" data-dismiss="modal" onclick="hideModal('modalDesativar')"><div><span>x</span></div></a>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalAlerta" tabindex="-1" role="dialog">
+    <div>
+        <div>
+            <p></p>
+        </div>
+        <a href="#" data-dismiss="modal"><div><span>x</span></div></a>
+    </div>
+</div>

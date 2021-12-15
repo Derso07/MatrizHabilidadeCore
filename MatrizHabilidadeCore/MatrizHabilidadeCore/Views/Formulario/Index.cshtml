@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "Matriz de Habilidade - Formulários";
+    var cookie = Annimar.Session.Cookie.Get();
+}
+
+@section buttons{
+
+    <a href="/MatrizHabilidade/" title="Início" class="desktop-only">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+
+    <a href="/" title="Início" class="mobile-only">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+}
+
+@section css{
+    <link href="~/Content/css/formulario.v21.css" rel="stylesheet" />
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        <h3>Formulários</h3>
+    </div>
+</div>
+
+<div id="FormularioContainer" class="main flex-column">
+
+    <a class="canvas" href="/MatrizHabilidade/Formulario/Auditoria">
+        <h4>Formulário de Auditoria</h4>
+    </a>
+
+    @if (cookie.Usu_acesso <= (int)NivelAcesso.Administrador)
+    {
+        <a class="canvas desktop-only" href="/MatrizHabilidade/Formulario/Meta">
+            <h4>Formulário de Meta</h4>
+        </a>
+    }
+
+    <a class="canvas" href="/MatrizHabilidade/PlanoAcao">
+        <h4>Plano Ação</h4>
+    </a>
+
+</div>

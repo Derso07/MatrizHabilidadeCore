@@ -1,0 +1,191 @@
+﻿@model MatrizHabilidade.ViewModel.PlantaViewModel
+
+@{
+    ViewBag.Title = "Matriz de Habilidade - " + Model.PlantaDescricao;
+    int selectedYear = Util.Cookie.Get().Ano;
+}
+
+@section buttons{
+
+    <a href="/MatrizHabilidade" title="Início">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+
+    <a href="/Home/Portal" title="Portal">
+        <img src="~/Content/images/icons/Icones-07.png" />
+    </a>
+
+    @if (Annimar.Session.Cookie.Get().Usu_acesso <= (int)NivelAcesso.Administrador)
+    {
+        <a href="/MatrizHabilidade/PlanoAcao?planta=@Model.PlantaId" title="Plano de Ação">
+            <img class="icon-plano-acao" src="~/Content/images/icons/Icones Plano de ação-07.svg" />
+        </a>
+    }
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        <h3>@Model.PlantaDescricao</h3>
+    </div>
+</div>
+
+<div class="main">
+
+    <div id="Year" class="flex-row">
+        <form action="/MatrizHabilidade/Home/ChangeYear" method="get">
+
+            <input type="hidden" name="returnurl" value="@Request.Url.PathAndQuery" />
+
+            <label>Fiscal Year</label>
+            <div class="styled-select">
+                <select onchange="this.form.submit()" name="ano">
+                    @foreach (var ano in ViewBag.Anos)
+                    {
+                        <option value="@ano" @(selectedYear == ano ? "selected" : "")>@ano.ToString().Substring(2)</option>
+                    }
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div id="IndexContainer" class="flex-row">
+        <div class="flex-column canvas">
+            <h3 class="text-center">GAP por Área (Total)</h3>
+            <div id="GAPAreaContainer" class="flex-column">
+                @foreach (var area in Model.Areas.OrderBy(m => m.Descricao))
+                {
+                    <div class="flex-row">
+                        <div class="flex-column">
+                            <a class="button" href="/MatrizHabilidade/Area?planta=@Model.PlantaId&area=@area.Id">@area.Descricao</a>
+                        </div>
+                        <div class="flex-column">
+                            <div class="farol @area.Auditoria.Media.GetFarol()"></div>
+                            <div class="farol @area.Treinamento.Media.GetFarol()"></div>
+                        </div>
+                        <div class="target"></div>
+                        <div class="flex-column">
+                            <div class="bar-chart">
+                                <div class="auditoria" style="width: @area.Auditoria.Media.ToString()%">
+                                    <span>@area.Auditoria.Media.ToString()%</span>
+                                    <div class="pop-up canvas flex-column">
+                                        <h5>@area.Descricao</h5>
+                                        <p><span class="dot auditoria"></span> GAP de Conhecimento Geral: @area.Auditoria.Media.ToString()%</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bar-chart">
+                                <div class="treinamento" style="width: @area.Treinamento.Media.ToString()%">
+                                    <span>@area.Treinamento.Media.ToString()%</span>
+                                    <div class="pop-up canvas flex-column">
+                                        <h5>@area.Descricao</h5>
+                                        <p><span class="dot treinamento"></span> GAP de Profissionais a Serem Treinados: @area.Treinamento.Media.ToString()%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="flex-row">
+                <span>0%</span>
+                <img src="~/Content/images/Seta nova.png" />
+            </div>
+            <div class="flex-right">
+                <span>Meta</span>
+            </div>
+            <div class="flex-row">
+                <div>
+                    <span class="dot auditoria"></span>
+                    <span>GAP de Conhecimento</span>
+                </div>
+                <div>
+                    <span class="dot treinamento"></span>
+                    <span>GAP de Treinamento</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex-column">
+            <div class="canvas flex-center">
+                <h4 class="text-center">GAP de Conhecimento (Total)</h4>
+            </div>
+            <div class="chart">
+                <div class="c100 p@(Model.Conhecimento.Media.ToString()) @Model.Conhecimento.Media.GetFarol() center">
+                    <span>@Model.Conhecimento.Media.ToString()%</span>
+                    <div class="slice">
+                        <div class="bar"></div>
+                        <div class="fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas flex-column">
+                <div class="gauge-container flex-column">
+                    <div class="flex-row">
+                        <div class="target"></div>
+                        <div class="flex-column">
+                            @foreach (var treinamento in Model.Conhecimento.Treinamentos)
+                            {
+                                <div class="flex-column">
+                                    <label>@treinamento.Key</label>
+                                    <div class="bar-chart @treinamento.Value.GetFarol()">
+                                        <div style="width: @treinamento.Value.ToString()%">
+                                            <span>@treinamento.Value.ToString()%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <span>0%</span>
+                        <img src="~/Content/images/Seta nova.png" />
+                    </div>
+                    <div class="flex-right">
+                        Meta
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-column">
+            <div class="canvas flex-center">
+                <h4 class="text-center">GAP de Profissionais a Serem <br> Treinados (Total)</h4>
+            </div>
+            <div class="chart">
+                <div class="c100 p@(Model.Treinamento.Media.ToString()) @Model.Treinamento.Media.GetFarol() center">
+                    <span>@Model.Treinamento.Media.ToString()%</span>
+                    <div class="slice">
+                        <div class="bar"></div>
+                        <div class="fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas flex-column">
+                <div class="gauge-container flex-column">
+                    <div class="flex-row">
+                        <div class="target"></div>
+                        <div class="flex-column">
+                            @foreach (var treinamento in Model.Treinamento.Treinamentos)
+                            {
+                                <div class="flex-column">
+                                    <label>@treinamento.Key</label>
+                                    <div class="bar-chart @treinamento.Value.GetFarol()">
+                                        <div style="width: @treinamento.Value.ToString()%">
+                                            <span>@treinamento.Value.ToString()%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <span>0%</span>
+                        <img src="~/Content/images/Seta nova.png" />
+                    </div>
+                    <div class="flex-right">
+                        Meta
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

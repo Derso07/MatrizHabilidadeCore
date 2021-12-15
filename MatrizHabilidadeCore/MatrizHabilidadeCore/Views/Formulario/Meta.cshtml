@@ -1,0 +1,189 @@
+﻿@model MatrizHabilidade.ViewModel.Formulario.MetaViewModel
+
+@{
+    ViewBag.Title = "Meta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section buttons{
+    <a href="/MatrizHabilidade/Formulario" title="Lista de Formulários">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+
+    <a href="#" class="desktop-only" onclick="document.querySelector('.buttons-excel').click()" title="Excel">
+        <img src="~/Content/images/Excel.png" />
+    </a>
+
+    <a href="#" class="desktop-only" onclick="showModal('ModalCadastroLote')" title="Cadastro em Lote">
+        <img src="~/Content/images/icons/Icones-09.png" />
+    </a>
+}
+
+@section js{
+    <script src="~/Content/js/jquery.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+    <script src="~/Content/js/jquery.validate.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.50/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+    <script src="~/Content/js/datatable.init.v1.js"></script>
+
+    <script src="~/Content/virtual-select/virtual-select.min.js"></script>
+    <script src="~/Content/virtual-select/virtual-select.init.v2.js"></script>
+
+    <script src="~/Content/js/main.v6.js"></script>
+
+    <script src="~/Content/js/meta.v4.js"></script>
+}
+
+@section css{
+    <link href="~/Content/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/virtual-select/virtual-select.min.css" rel="stylesheet" />
+    <link href="~/Content/modal/modal.v5.css" rel="stylesheet" />
+    <link href="~/Content/css/formulario.v21.css" rel="stylesheet" />
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        <h3>Formulários - Metas</h3>
+    </div>
+</div>
+
+<div class="main flex-column flex-nowrap">
+
+    <div class="container-fluid mb-3">
+        <div class="row">
+
+            <div class="col-md-2">
+                <div class="canvas flex-column">
+                    <label class="font-weight-bold text-center">Filtro de Unidades</label>
+                    <div class="virtual-select" id="Planta">
+                        <select name="planta" class="form-control" onchange="filtrarPlantaMetas()">
+                            @foreach (var planta in Model.Plantas)
+                            {
+                                <option @(planta.IsSelected ? "selected" : "") value="@planta.Key">@planta.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="canvas flex-column">
+                    <label class="font-weight-bold text-center">Filtro de Área</label>
+                    <div class="virtual-select" id="Area">
+                        <select name="area" class="form-control" onchange="filtrarAreaMetas()">
+                            @foreach (var area in Model.Areas)
+                            {
+                                <option @(area.IsSelected ? "selected" : "") value="@area.Key">@area.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="canvas flex-column">
+                    <label class="font-weight-bold text-center">Filtro de Máquina</label>
+                    <div class="virtual-select" id="Maquina">
+                        <select name="maquina" class="form-control" onchange="filtrarMaquinaMetas()">
+                            @foreach (var maquina in Model.Maquinas)
+                            {
+                                <option @(maquina.IsSelected ? "selected" : "") value="@maquina.Key">@maquina.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="canvas flex-column">
+                    <label class="font-weight-bold text-center">Filtro de Padrão</label>
+                    <div class="virtual-select" id="Padrao">
+                        <select name="padroes" multiple class="form-control">
+                            @foreach (var padrao in Model.Padroes)
+                            {
+                                <option @(padrao.IsSelected ? "selected" : "") value="@padrao.Key">@padrao.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="canvas flex-column">
+                    <label class="font-weight-bold text-center">Filtro de Profissional</label>
+                    <div class="virtual-select" id="Profissional">
+                        <select name="profissionais" multiple class="form-control">
+                            @foreach (var profissional in Model.Profissionais)
+                            {
+                                <option @(profissional.IsSelected ? "selected" : "") value="@profissional.Key">@profissional.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-2 d-flex align-itens-center">
+                <button class="transparent" onclick="buscarTabelaMetas()">
+                    <img src="~/Content/images/icons8-filter-60.png" />
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <form action="/Formulario/Meta" method="post" class="h-25 flex-grow-1">
+        <div class="canvas flex-grow-1 perfect-scroll h-100">
+            <table id="TabelaMetas">
+                <thead>
+                    <tr>
+                        <th>Planta</th>
+                        <th>Área</th>
+                        <th>Máquina</th>
+                        <th>Chapa</th>
+                        <th>Nome</th>
+                        <th>Padrão</th>
+                        <th>Meta</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </form>
+
+</div>
+
+<div class="modal modal-alert" id="ModalCarregando" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+            <div class="loader loader--style1">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" xmlns:v="https://vecta.io/nano"><path opacity=".2" d="M20.201 5.169A14.95 14.95 0 0 0 5.255 20.115a14.95 14.95 0 0 0 14.946 14.946 14.95 14.95 0 0 0 14.946-14.946A14.95 14.95 0 0 0 20.201 5.169zm0 26.58c-6.425 0-11.634-5.208-11.634-11.634S13.776 8.481 20.201 8.481s11.633 5.209 11.633 11.634-5.208 11.634-11.633 11.634z" /><path d="M26.013 10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312a11.57 11.57 0 0 1 5.812 1.566z"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="0.5s" repeatCount="indefinite" /></path></svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="ModalCadastroLote" tabindex="-1" role="dialog">
+    <div>
+        <div class="flex-column">
+            <p class="margin-auto mb-3">Cadastro em Lote</p>
+            <input class="mb-3" type="file" name="ArquivoLote" onchange="onArquivoLoteChanged()" />
+            <button type="button" onclick="enviarArquivoLote()">Enviar</button>
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>
+
+<div class="modal modal-alert" id="modalAlerta" tabindex="-1" role="dialog">
+    <div>
+        <div>
+            <p class="margin-auto"></p>
+        </div>
+        <a href="#" class="close"><div><span>x</span></div></a>
+    </div>
+</div>

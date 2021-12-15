@@ -1,0 +1,219 @@
+﻿@model MatrizHabilidade.ViewModel.Formulario.AuditoriaViewModel
+
+@{
+    ViewBag.Title = "Matriz de Habilidade - Formulário de Treinamentos";
+}
+
+@section buttons{
+    <a href="/MatrizHabilidade/Formulario" title="Lista de Formulários">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+}
+
+@section js{
+    <script src="~/Content/js/jquery.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+
+    <script src="~/Content/js/main.v6.js"></script>
+    <script src="~/Content/js/flip.js"></script>
+
+    <script src="~/Content/js/formulario.js"></script>
+}
+
+@section css{
+    <link href="~/Content/css/modal.v1.css" rel="stylesheet" />
+    <link href="~/Content/css/flip.css" rel="stylesheet" />
+    <link href="~/Content/css/formulario.css" rel="stylesheet" />
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        <h3>Formulários - Treinamentos</h3>
+    </div>
+</div>
+
+<div id="AuditoriaContainer" class="main">
+
+    <form action="/MatrizHabilidade/Formulario/CadastrarAuditoria" method="post">
+
+        <div class="panel">
+            <div class="front flex-center">
+                <div class="inside flex-column">
+                    <div class="canvas user-info flex-column">
+
+                        <div class="flex-row">
+                            <div>
+                                <img src="~/Content/images/icons/01 - User-01.png" />
+                            </div>
+                            <input type="text" disabled name="name" value="@Model.UserName" />
+                        </div>
+                        <div class="flex-row">
+                            <div>
+                                <img src="~/Content/images/icons/02 - Email-01.png" />
+                            </div>
+                            <input type="text" disabled name="name" value="@Model.Email" />
+                        </div>
+
+                    </div>
+
+                    @if (Model.Acesso <= NivelAcesso.Administrador)
+                    {
+                        <div class="flex-column">
+                            <div class="canvas title">
+                                <h3>Filtro de Área</h3>
+                            </div>
+                            <div class="canvas flex-column flex-center">
+                                <div class="radio-container perfect-scroll disable-x">
+                                    @for (var x = 0; x < Model.Areas.Count; x++)
+                                    {
+                                        <div>
+                                            <input type="radio" id="Area_@x" name="Area" onchange="filtrarAreaAuditoria(this)" value="@Model.Areas.ElementAt(x).Key" />
+                                            <label for="Area_@x">@Model.Areas.ElementAt(x).Value</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-column">
+                            <div class="canvas title">
+                                <h3>Filtro de Máquina</h3>
+                            </div>
+                            <div class="canvas flex-column flex-center">
+                                <div id="MaquinaContainer" class="radio-container perfect-scroll disable-x">
+                                    @for (var x = 0; x < Model.Maquinas.Count; x++)
+                                    {
+                                        <div>
+                                            <input type="radio" id="Maquina_@x" name="Maquina" onchange="filtrarMaquinaAuditoria(this)" value="@Model.Maquinas.ElementAt(x).Key" />
+                                            <label for="Maquina_@x">@Model.Maquinas.ElementAt(x).Value</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="flex-column">
+                        <div class="canvas title">
+                            <h3>Operador</h3>
+                        </div>
+
+                        <div class="canvas flex-column flex-center">
+
+                            <div class="busca-operador flex-row">
+                                <input type="text" name="filtroOperador" value="" />
+                                <button type="button" onclick="filtrarOperadorAuditoria()">
+                                    <img src="~/Content/images/icons/03 - Seta-01.png" />
+                                </button>
+                            </div>
+
+                            <div id="OperadorContainer" class="radio-container perfect-scroll disable-x">
+                                @for (var x = 0; x < Model.Operadores.Count; x++)
+                                {
+                                    <div>
+                                        <input type="radio" id="Operador_@x" name="Operador" value="@Model.Operadores.ElementAt(x).Key" />
+                                        <label for="Operador_@x">@Model.Operadores.ElementAt(x).Value</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-column">
+                        <div class="canvas title">
+                            <h3>Padrão</h3>
+                        </div>
+                        <div class="canvas flex-column flex-center">
+
+                            <div class="busca-operador flex-row">
+                                <input type="text" name="filtroPadrao" value="" />
+                                <button type="button" onclick="filtrarOperadorPadrao()">
+                                    <img src="~/Content/images/icons/03 - Seta-01.png" />
+                                </button>
+                            </div>
+
+                            <div id="PadraoContainer" class="radio-container perfect-scroll disable-x">
+                                @for (var x = 0; x < Model.Padroes.Count; x++)
+                                {
+                                    <div>
+                                        <input type="radio" id="Padrao_@x" name="Padrao" value="@Model.Padroes.ElementAt(x).Key" />
+                                        <label for="Padrao_@x">@Model.Padroes.ElementAt(x).Value</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="proximaPaginaAuditoria()">Iniciar</button>
+                </div>
+            </div>
+            <div class="back flex-center">
+
+                <div class="inside flex-column">
+                    <div class="canvas user-info flex-column">
+
+                        <div class="flex-row">
+                            <div>
+                                <img src="~/Content/images/icons/01 - User-01.png" />
+                            </div>
+                            <input type="text" disabled name="name" value="@Model.UserName" />
+                        </div>
+                        <div class="flex-row">
+                            <div>
+                                <img src="~/Content/images/icons/02 - Email-01.png" />
+                            </div>
+                            <input type="text" disabled name="name" value="@Model.Email" />
+                        </div>
+
+                    </div>
+
+                    <div class="flex-column">
+                        <div class="canvas title">
+                            <h3>Itens para Verificação</h3>
+                        </div>
+
+                        @for (var x = 0; x < Model.Perguntas.Count; x++)
+                        {
+                            <div class="canvas flex-column pergunta">
+
+                                <div>
+                                    <p>@Model.Perguntas.ElementAt(x).Value</p>
+                                    <span></span>
+                                </div>
+                                <div class="radio-container">
+                                    <div>
+                                        <input required type="radio" id="PerguntaOK_@x" name="Perguntas[@Model.Perguntas.ElementAt(x).Key]" value="true" />
+                                        <label for="PerguntaOK_@x">OK</label>
+                                    </div>
+                                    <div>
+                                        <input required type="radio" id="PerguntaNOK_@x" name="Perguntas[@Model.Perguntas.ElementAt(x).Key]" value="false" />
+                                        <label for="PerguntaNOK_@x">NOK</label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <div class="inside flex-row">
+                        <button type="button" onclick="flip()">Voltar</button>
+                        <button type="submit">Finalizar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+<div class="modal modal-alert" id="modalAlerta" tabindex="-1" role="dialog">
+    <div>
+        <div></div>
+        <div>
+            <p></p>
+        </div>
+        <a href="#" data-dismiss="modal"><div><span>X</span></div></a>
+    </div>
+</div>
