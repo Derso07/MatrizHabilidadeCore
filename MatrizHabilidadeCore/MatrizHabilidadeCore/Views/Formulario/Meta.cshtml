@@ -65,7 +65,12 @@
                         <select name="planta" class="form-control" onchange="filtrarPlantaMetas()">
                             @foreach (var planta in Model.Plantas)
                             {
-                                <option @(planta.IsSelected ? "selected" : "") value="@planta.Key">@planta.Text</option>
+                                if (planta.IsSelected)
+                                {
+                                    < option value = "@planta.Key" > @planta.Text </ option >
+                                }
+
+                                @*<option @(planta.IsSelected ? "selected" : "") value="@planta.Key">@planta.Text</option>*@
                             }
                         </select>
                     </div>
@@ -79,7 +84,12 @@
                         <select name="area" class="form-control" onchange="filtrarAreaMetas()">
                             @foreach (var area in Model.Areas)
                             {
-                                <option @(area.IsSelected ? "selected" : "") value="@area.Key">@area.Text</option>
+                                if (area.IsSelected)
+                                {
+                                    < option value = "@area.Key" > @area.Text </ option >
+                                }
+
+                                @*<option @(area.IsSelected ? "selected" : "") value="@area.Key">@area.Text</option>*@
                             }
                         </select>
                     </div>
@@ -93,7 +103,12 @@
                         <select name="maquina" class="form-control" onchange="filtrarMaquinaMetas()">
                             @foreach (var maquina in Model.Maquinas)
                             {
-                                <option @(maquina.IsSelected ? "selected" : "") value="@maquina.Key">@maquina.Text</option>
+                                if (maquina.IsSelected)
+                                {
+                                    < option value = "@maquina.Key" > @maquina.Text </ option >
+                                }
+
+                                @*<option @(maquina.IsSelected ? "selected" : "") value="@maquina.Key">@maquina.Text</option>*@
                             }
                         </select>
                     </div>
@@ -107,7 +122,12 @@
                         <select name="padroes" multiple class="form-control">
                             @foreach (var padrao in Model.Padroes)
                             {
-                                <option @(padrao.IsSelected ? "selected" : "") value="@padrao.Key">@padrao.Text</option>
+                                if (padrao.IsSelected)
+                                {
+                                    < option value = "@padrao.Key" > @padrao.Text </ option >
+                                }
+
+                                @*<option @(padrao.IsSelected ? "selected" : "") value="@padrao.Key">@padrao.Text</option>*@
                             }
                         </select>
                     </div>
@@ -121,7 +141,12 @@
                         <select name="profissionais" multiple class="form-control">
                             @foreach (var profissional in Model.Profissionais)
                             {
-                                <option @(profissional.IsSelected ? "selected" : "") value="@profissional.Key">@profissional.Text</option>
+                                if (profissional.IsSelected)
+                                {
+                                    < option value = "@profissional.Key" > @profissional.Text </ option >
+                                }
+
+                                @*<option @(profissional.IsSelected ? "selected" : "") value="@profissional.Key">@profissional.Text</option>*@
                             }
                         </select>
                     </div>

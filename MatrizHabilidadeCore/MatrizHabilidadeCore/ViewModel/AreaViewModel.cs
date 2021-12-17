@@ -15,7 +15,7 @@ namespace MatrizHabilidade.ViewModel
     {
         private readonly DataBaseContext _db;
         private readonly CookieService _cookieService;
-        public AreaViewModel(int areaId, DataBaseContext db, CookieService cookieService)
+        public AreaViewModel(int areaId, DataBaseContext db, CookieService cookieService, int ano_selecionado)
         {
             _db = db;
             _cookieService = cookieService;
@@ -24,7 +24,7 @@ namespace MatrizHabilidade.ViewModel
             Conhecimento = new ProgressBar();
             Treinamento = new ProgressBar();
 
-                var date = new DateTime(cookieService.AnoSelecionado, 3, DateTime.DaysInMonth(cookieService.AnoSelecionado, 3));
+                var date = new DateTime(ano_selecionado, 3, DateTime.DaysInMonth(ano_selecionado, 3));
                 var gapCalculator = new GAPCalculatorService();
 
                 var tiposTreinamento = db.TiposTreinamentos
@@ -142,5 +142,7 @@ namespace MatrizHabilidade.ViewModel
         public ProgressBar Treinamento { get; set; }
 
         public bool IsRedirected { get; set; }
+
+        public string PathAndQuery { get; set; }
     }
 }

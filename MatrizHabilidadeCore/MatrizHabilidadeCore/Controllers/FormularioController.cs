@@ -21,7 +21,7 @@ namespace MatrizHabilidadeCore.Controllers
     public class FormularioController : BaseController
     {
 
-        public FormularioController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService) : base(_db, userManager, cookieService)
+        public FormularioController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(_db, userManager, cookieService, _claimService)
         {
 
         }

@@ -15,7 +15,7 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class PlanoAcaoController : BaseController
     {
-        public PlanoAcaoController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService) : base(_db, userManager, cookieService)
+        public PlanoAcaoController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(_db, userManager, cookieService, _claimService)
         {
         }
         public enum ReturnUrl
@@ -27,11 +27,16 @@ namespace MatrizHabilidadeCore.Controllers
 
         public ActionResult Index(string returnUrl, string planta, string area, string[] maquinas, string status)
         {
+            var path = HttpContext.Request.Path;
+            var queryString = HttpContext.Request.QueryString;
+
+
             var model = new PlanoAcaoViewModel()
             {
                 PlantasKey = planta,
                 AreasKey = area,
                 MaquinasKey = maquinas,
+                PathAndQuery = $"{path}{queryString}"
             };
 
             List<int> statuses = new List<int>();
@@ -153,8 +158,8 @@ namespace MatrizHabilidadeCore.Controllers
                 }
             }
 
-            var dataInicial = new DateTime(CurrentYear.Ano - 1, 04, 01);
-            var dataFinal = new DateTime(CurrentYear.Ano, 03, DateTime.DaysInMonth(CurrentYear.Ano , 03));
+            var dataInicial = new DateTime(base.GetCurrentYear() - 1, 04, 01);
+            var dataFinal = new DateTime(base.GetCurrentYear(), 03, DateTime.DaysInMonth(base.GetCurrentYear(), 03));
 
             query = query.Where(q => q.DataCriacao >= dataInicial && q.DataCriacao <= dataFinal);
 

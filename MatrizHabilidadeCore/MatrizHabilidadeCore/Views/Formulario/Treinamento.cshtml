@@ -56,7 +56,7 @@
 
                     </div>
 
-                    @if (Model.Acesso <= NivelAcesso.Administrador)
+                    @if (this.User.IsInRole(Roles.Adminstrador))
                     {
                         <div class="flex-column">
                             <div class="canvas title">
@@ -108,13 +108,13 @@
                             </div>
 
                             <div id="OperadorContainer" class="radio-container perfect-scroll disable-x">
-                                @for (var x = 0; x < Model.Operadores.Count; x++)
+                                @*@for (var x = 0; x < Model.Operadores.Count; x++)
                                 {
                                     <div>
                                         <input type="radio" id="Operador_@x" name="Operador" value="@Model.Operadores.ElementAt(x).Key" />
                                         <label for="Operador_@x">@Model.Operadores.ElementAt(x).Value</label>
                                     </div>
-                                }
+                                }*@
                             </div>
                         </div>
                     </div>

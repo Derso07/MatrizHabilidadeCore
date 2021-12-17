@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\eders\\Desktop\\MatrizHabilidadeCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj": {}
+    "C:\\Users\\eders\\Documents\\MatrizHabilidadeCore_\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj": {}
   },
   "projects": {
-    "C:\\Users\\eders\\Desktop\\MatrizHabilidadeCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj": {
+    "C:\\Users\\eders\\Documents\\MatrizHabilidadeCore_\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\eders\\Desktop\\MatrizHabilidadeCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj",
+        "projectUniqueName": "C:\\Users\\eders\\Documents\\MatrizHabilidadeCore_\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj",
         "projectName": "MatrizHabilidadeDataBaseCore",
-        "projectPath": "C:\\Users\\eders\\Desktop\\MatrizHabilidadeCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj",
+        "projectPath": "C:\\Users\\eders\\Documents\\MatrizHabilidadeCore_\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj",
         "packagesPath": "C:\\Users\\eders\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\eders\\Desktop\\MatrizHabilidadeCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\obj\\",
+        "outputPath": "C:\\Users\\eders\\Documents\\MatrizHabilidadeCore_\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\eders\\AppData\\Roaming\\NuGet\\NuGet.Config",

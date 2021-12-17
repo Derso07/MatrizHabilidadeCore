@@ -16,11 +16,14 @@ namespace MatrizHabilidadeCore.Controllers
     {
         private readonly HistoricoCalculatorService _historicoCalculatorService;
 
-        public CoordenadorController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService) : base(_db, userManager, cookieService)
+        public CoordenadorController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(_db, userManager, cookieService, _claimService)
         {
         }
         public ActionResult Index(string planta, string area)
         {
+            var path = HttpContext.Request.Path;
+            var query = HttpContext.Request.QueryString;
+
             if (!int.TryParse(Encrypting.Decrypt(planta), out int planta_id))
             {
                 return RedirectToAction("Index", "Home");
@@ -39,7 +42,7 @@ namespace MatrizHabilidadeCore.Controllers
             var chartBuilder = new ChartBuilderService(_db, _historicoCalculatorService);
             var historicoCalculator = new HistoricoCalculatorService(_db);
 
-            int ano = CurrentYear.Ano;
+            int ano = base.GetCurrentYear();
 
             if (ano == 0)
             {
@@ -52,6 +55,7 @@ namespace MatrizHabilidadeCore.Controllers
                 PlantaDescricao = _planta.Descricao,
                 AreaId = Encrypting.Encrypt(_area.Id.ToString()),
                 AreaDescricao = _area.Alias,
+                PathAndQuery = $"{path}{query}"
             };
 
             var coordenadores = _db.HistoricoCoordenadores

@@ -14,11 +14,15 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class AreaController : BaseController
     {
-        public AreaController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService _cookieService):base(_db, userManager, _cookieService)
+        public AreaController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService _cookieService, ClaimService _claimService):base(_db, userManager, _cookieService, _claimService)
         {
         }
         public ActionResult Index(string planta, string area, bool? isRedirected)
         {
+            var path = HttpContext.Request.Path;
+            var query = HttpContext.Request.QueryString;
+            var pathAndQuery = path + query;
+
             if (!isRedirected.HasValue)
             {
                 isRedirected = false;
@@ -32,13 +36,14 @@ namespace MatrizHabilidadeCore.Controllers
                 {
                     Area _area = _db.Areas.Where(p => p.Id == area_id).FirstOrDefault();
 
-                    var model = new AreaViewModel(_area.Id, _db, _cookieService )
+                    var model = new AreaViewModel(_area.Id, _db, _cookieService, base.GetCurrentYear())
                     {
                         PlantaId = Encrypting.Encrypt(_planta.Id.ToString()),
                         PlantaDescricao = _planta.Descricao,
                         AreaId = Encrypting.Encrypt(_area.Id.ToString()),
                         AreaDescricao = _area.Alias,
                         IsRedirected = isRedirected.Value,
+                        PathAndQuery = pathAndQuery
                     };
 
                     return View(model);

@@ -60,9 +60,9 @@ namespace MatrizHabilidadeCore.Controllers
 
         public int GetCurrentYear()
         {
-           
             return _currentYear.Value;
         }
+
         public async override Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var year = await _claimService.GetClaimValue<int>(Claims.CurrentYear);

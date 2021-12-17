@@ -188,7 +188,16 @@ namespace MatrizHabilidade.Services
                         }
                         else if (type == Coluna.DataInicial)
                         {
-                            data = value.ToDate() ?? DateTime.MinValue;
+                            if(Convert.ToDateTime(value) != null)
+                            {
+                                data = Convert.ToDateTime(value);
+                            }
+                            else
+                            {
+                                data = DateTime.MinValue;
+                            }
+
+                            //data = Convert.ToDateTime(value) ?? DateTime.MinValue;
                             columnsFound++;
                         }
                         else if (type == Coluna.Pontuacao)

@@ -12,20 +12,24 @@ namespace MatrizHabilidadeCore.Controllers
     public class PlantaController : BaseController
     {
 
-        public PlantaController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService) : base(_db, userManager, cookieService)
+        public PlantaController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(_db, userManager, cookieService, _claimService)
         {
 
         }
         public ActionResult Index(string planta)
         {
+            var path = HttpContext.Request.Path;
+            var query = HttpContext.Request.QueryString;
+
             if (int.TryParse(Encrypting.Decrypt(planta), out int planta_id))
             {
                 Planta _planta = _db.Plantas.Where(p => p.Id == planta_id).FirstOrDefault();
 
-                var model = new PlantaViewModel(_planta.Id)
+                var model = new PlantaViewModel(_planta.Id,_db, base.GetCurrentYear())
                 {
                     PlantaId = Encrypting.Encrypt(_planta.Id.ToString()),
                     PlantaDescricao = _planta.Descricao,
+                    PathAndQuery = $"{path}{query}"
                 };
 
                 if (model.RequireRedirect)

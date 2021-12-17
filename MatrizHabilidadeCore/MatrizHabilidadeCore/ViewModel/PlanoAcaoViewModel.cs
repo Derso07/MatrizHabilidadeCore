@@ -25,6 +25,8 @@ namespace MatrizHabilidade.ViewModel
 
         public double GAPAcaoCorretiva { get; set; }
 
+        public string PathAndQuery { get; set; }
+
         public List<string> SiteMap { get; set; }
 
         public GraficoPie GraficoAcompanhamento { get; set; }

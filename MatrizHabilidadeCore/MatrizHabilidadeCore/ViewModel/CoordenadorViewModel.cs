@@ -26,5 +26,7 @@ namespace MatrizHabilidade.ViewModel
         public Grafico ReducaoExportacao { get; set; }
 
         public Grafico InstrutoresExportacao { get; set; }
+
+        public string PathAndQuery { get; set; }
     }
 }

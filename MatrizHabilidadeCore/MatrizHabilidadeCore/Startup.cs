@@ -64,8 +64,10 @@ namespace MatrizHabilidadeCore
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
             })
+
                 .AddEntityFrameworkStores<DataBaseContext>()
                 .AddDefaultTokenProviders();
+                
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {

@@ -4,21 +4,23 @@ using System.Data;
 using System.Linq;
 using MatrizHabilidadeDatabase.Models;
 using MatrizHabilidadeDatabase.Services;
+using MatrizHabilidadeDataBaseCore;
+using MatrizHabilidadeDataBaseCore.Services;
 
 namespace MatrizHabilidade.ViewModel
 {
     public class PlantaViewModel : ViewModelBase
     {
-        public PlantaViewModel(int plantaId)
+        private readonly DataBaseContext _db;
+
+        public PlantaViewModel(int plantaId, DataBaseContext db, int ano_selecionado)
         {
+            db = _db;
             Areas = new List<LinhaGraficoFarol>();
             Conhecimento = new ProgressBar();
             Treinamento = new ProgressBar();
 
-            using (DatabaseContext db = new DatabaseContext())
-            {
-                var cookie = Util.Cookie.Get();
-                var date = new DateTime(cookie.AnoSelecionado, 3, DateTime.DaysInMonth(cookie.AnoSelecionado, 3));
+                var date = new DateTime(ano_selecionado, 3, DateTime.DaysInMonth(ano_selecionado, 3));
                 var gapCalculator = new GAPCalculatorService();
 
                 var tiposTreinamento = db.TiposTreinamentos
@@ -34,10 +36,10 @@ namespace MatrizHabilidade.ViewModel
                     .Where(a => a.Id != 1)
                     .ToList();
 
-                if (areas.Count == 1)
+                if (areas.Count.Equals(1))
                 {
                     RequireRedirect = true;
-                    Parameter = Annimar.Funcoes.Encrypt(areas[0].Id.ToString());
+                    Parameter = Encrypting.Encrypt(areas[0].Id.ToString());
                 }
                 else
                 {
@@ -98,7 +100,7 @@ namespace MatrizHabilidade.ViewModel
 
                         var linha = new LinhaGraficoFarol()
                         {
-                            Id = Annimar.Funcoes.Encrypt(areas[x].Id.ToString()),
+                            Id = Encrypting.Encrypt(areas[x].Id.ToString()),
                             Descricao = areas[x].Alias,
                         };
 
@@ -138,11 +140,12 @@ namespace MatrizHabilidade.ViewModel
                     }
                 }
             }
-        }
 
         public bool RequireRedirect { get; set; }
 
         public string Parameter { get; set; }
+
+        public string PathAndQuery { get; set; }
 
         public List<LinhaGraficoFarol> Areas { get; set; }
 

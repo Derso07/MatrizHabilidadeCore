@@ -2,7 +2,6 @@
 
 @{
     ViewBag.Title = "Plano de Ação";
-    int selectedYear = Util.Cookie.Get().Ano;
 }
 
 @section css{
@@ -51,7 +50,7 @@
         <img src="~/Content/images/icons/Icones-01.png" />
     </a>
 
-    @if (Annimar.Session.Cookie.Get().Usu_acesso <= (int)NivelAcesso.Administrador)
+    @if (this.User.IsInRole(Roles.Adminstrador))
     {
         <a href="#" title="Filtro" class="desktop-only" onclick="showModal('ModalFiltro')">
             <img src="~/Content/images/icons/Icones-04.png" />
@@ -81,15 +80,19 @@
 
         <div id="Year" class="flex-row">
             <form action="/MatrizHabilidade/Home/ChangeYear" method="get">
-
-                <input type="hidden" name="returnurl" value="@Request.Url.PathAndQuery" />
+                <input type="hidden" name="returnurl" value="@Model.PathAndQuery" />
 
                 <label>Fiscal Year</label>
                 <div class="styled-select">
                     <select onchange="this.form.submit()" name="ano">
                         @foreach (var ano in ViewBag.Anos)
                         {
-                            <option value="@ano" @(selectedYear == ano ? "selected" : "")>@ano.ToString().Substring(2)</option>
+                            if (TempData[Claims.CurrentYear.Value] == ano)
+                            {
+                                < option value = "@ano" > @ano.ToString().Substring(2) </ option >
+                            }
+
+                            @*<option value="@ano" @(selectedYear == ano ? "selected" : "")>@ano.ToString().Substring(2)</option>*@
                         }
                     </select>
                 </div>
@@ -167,11 +170,32 @@
                         <input type="hidden" name="maquina" value="@Model.MaquinasKey" />
                         <div class="virtual-select" data-position="bottom" data-hidden-input-name="status">
                             <select name="status" multiple>
-                                <option style="display: none">Status</option>
-                                <option @(Model.Status.Contains(1) ? "selected" : "") value="1">Concluído</option>
-                                <option @(Model.Status.Contains(2) ? "selected" : "") value="2">Em Andamento</option>
-                                <option @(Model.Status.Contains(3) ? "selected" : "") value="3">Atrasado</option>
-                                <option @(Model.Status.Contains(4) ? "selected" : "") value="4">Concluído com Atraso</option>
+                                
+                                if(Model.Status.Contains(1))
+                                {
+                                    < option value = "1" > Concluído </ option >
+                                }
+                                else if(Model.Status.Contains(2))
+                                {
+                                    < option value = "2" > Em Andamento </ option >
+                                }
+                                else if(Model.Status.Contains(3))
+                                {
+                                    < option value = "3" > Atrasado </ option >
+                                }
+                                else if(Model.Status.Contains(4))
+                                {
+                                    < option value = "4" > Concluído com Atraso </ option >
+                                }
+                                else
+                                {
+                                    <option style="display: none">Status</option>
+                                }
+
+                                @*<option @(Model.Status.Contains(1) ? "selected" : "" ) value="1">Concluído</option>
+                                <option @(Model.Status.Contains(2) ? "selected" : "" ) value="2">Em Andamento</option>
+                                <option @(Model.Status.Contains(3) ? "selected" : "" ) value="3">Atrasado</option>
+                                <option @(Model.Status.Contains(4) ? "selected" : "" ) value="4">Concluído com Atraso</option>*@
                             </select>
                         </div>
                         <button type="submit">
@@ -309,7 +333,12 @@
                                 <option value="">Todas</option>
                                 @foreach (var planta in Model.Plantas.Value.Options)
                                 {
-                                    <option @(planta.Key == Model.Plantas.Value.SelectedKey ? "selected" : "") value="@planta.Key">@planta.Value</option>
+                                    if (planta.Key == Model.Plantas.Value.SelectedKey)
+                                    {
+                                        < option value = "@planta.Key" > @planta.Value </ option >
+                                    }
+
+                                    @*<option @(planta.Key == Model.Plantas.Value.SelectedKey ? "selected" : "") value="@planta.Key">@planta.Value</option>*@
                                 }
                             </select>
                         </div>
@@ -326,7 +355,12 @@
                                 <option value="">Todas</option>
                                 @foreach (var area in Model.Areas.Value.Options)
                                 {
-                                    <option @(area.Key == Model.Areas.Value.SelectedKey ? "selected" : "") value="@area.Key">@area.Value</option>
+                                    if (area.Key == Model.Areas.Value.SelectedKey)
+                                    {
+                                        < option value = "@area.Key" > @area.Value </ option >
+                                    }
+
+                                    @*<option @(area.Key == Model.Areas.Value.SelectedKey ? "selected" : "") value="@area.Key">@area.Value</option>*@
                                 }
                             </select>
                         </div>
@@ -343,7 +377,12 @@
                                 <option value="">Todas</option>
                                 @foreach (var maquina in Model.Maquinas.Value.Options)
                                 {
-                                    <option @(maquina.Key == Model.Maquinas.Value.SelectedKey ? "selected" : "") value="@maquina.Key">@maquina.Value</option>
+                                    if (maquina.Key == Model.Maquinas.Value.SelectedKey)
+                                    {
+                                        < option value = "@maquina.Key" > @maquina.Value </ option >
+                                    }
+
+                                    @*<option @(maquina.Key == Model.Maquinas.Value.SelectedKey ? "selected" : "") value="@maquina.Key">@maquina.Value</option>*@
                                 }
                             </select>
                         </div>

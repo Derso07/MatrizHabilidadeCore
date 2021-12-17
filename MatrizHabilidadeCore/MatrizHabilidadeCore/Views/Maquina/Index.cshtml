@@ -2,7 +2,6 @@
 
 @{
     ViewBag.Title = "Matriz de Habilidade - " + Model.MaquinaDescricao;
-    int selectedYear = Util.Cookie.Get().Ano;
 }
 
 @section buttons{
@@ -19,7 +18,7 @@
         <img src="~/Content/images/icons/Icones-02.png" />
     </a>
 
-    @if (Annimar.Session.Cookie.Get().Usu_acesso <= (int)NivelAcesso.Administrador)
+    @if (this.User.IsInRole(Roles.Adminstrador))
     {
         <a href="/MatrizHabilidade/PlanoAcao?planta=@Model.PlantaId&area=@Model.AreaId&maquinas=@Model.MaquinaId" title="Plano de Ação">
             <img class="icon-plano-acao" src="~/Content/images/icons/Icones Plano de ação-07.svg" />
@@ -42,14 +41,19 @@
     <div id="Year" class="flex-row">
         <form action="/MatrizHabilidade/Home/ChangeYear" method="get">
 
-            <input type="hidden" name="returnurl" value="@Request.Url.PathAndQuery" />
+            <input type="hidden" name="returnurl" value="@Model.PathAndQuery" />
 
             <label>Fiscal Year</label>
             <div class="styled-select">
                 <select onchange="this.form.submit()" name="ano">
                     @foreach (var ano in ViewBag.Anos)
                     {
-                        <option value="@ano" @(selectedYear == ano ? "selected" : "")>@ano.ToString().Substring(2)</option>
+                        if (TempData[Claims.CurrentYear.Value] == ano)
+                        {
+                            < option value = "@ano" > @ano.ToString().Substring(2) </ option >
+                        }
+
+                        @*<option value="@ano" @(selectedYear == ano ? "selected" : "")>@ano.ToString().Substring(2)</option>*@
                     }
                 </select>
             </div>

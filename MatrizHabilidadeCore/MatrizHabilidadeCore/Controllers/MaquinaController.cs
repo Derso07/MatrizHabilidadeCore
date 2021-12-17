@@ -18,11 +18,15 @@ namespace MatrizHabilidadeCore.Controllers
     {
         private readonly HistoricoCalculatorService _historicoCalculatorService;
 
-        public MaquinaController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService) : base(_db, userManager, cookieService)
+        public MaquinaController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(_db, userManager, cookieService, _claimService)
         {
         }
         public ActionResult Index(string planta, string area, string maquina)
         {
+            var path = HttpContext.Request.Path;
+            var query = HttpContext.Request.QueryString;
+            var pathAndQuery = path + query;
+
             if (!int.TryParse(Encrypting.Decrypt(planta), out int planta_id))
             {
                 return RedirectToAction("Index", "Home");
@@ -48,7 +52,7 @@ namespace MatrizHabilidadeCore.Controllers
 
             Maquina _maquina = _db.Maquinas.Where(m => m.Id == maquina_id).FirstOrDefault();
 
-            int ano = CurrentYear.Ano;
+            int ano = GetCurrentYear();
             var currentDate = DateTime.Now;
 
             var model = new MaquinaViewModel()
@@ -59,6 +63,7 @@ namespace MatrizHabilidadeCore.Controllers
                 AreaDescricao = _area.Alias,
                 MaquinaId = Encrypting.Encrypt(_maquina.Id.ToString()),
                 MaquinaDescricao = _maquina.Descricao,
+                PathAndQuery = pathAndQuery
             };
 
             #region Auditorias Realizadas

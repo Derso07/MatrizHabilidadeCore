@@ -20,7 +20,7 @@ namespace MatrizHabilidadeCore.Controllers
     public class HomeController : BaseController
     {
 
-        public HomeController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService _cookieService) : base(_db, userManager, _cookieService)
+        public HomeController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService _cookieService, ClaimService _claimService) : base(_db, userManager, _cookieService, _claimService)
         {
         }
 

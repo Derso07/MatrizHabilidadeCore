@@ -57,7 +57,7 @@
 
                     </div>
 
-                    @if (Model.Acesso <= NivelAcesso.Administrador)
+                    @if (this.User.IsInRole(Roles.Adminstrador))
                     {
                         <div class="flex-column">
                             <div class="canvas title">

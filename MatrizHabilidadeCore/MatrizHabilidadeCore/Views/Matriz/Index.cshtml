@@ -1,0 +1,594 @@
+﻿@model MatrizHabilidade.ViewModel.MatrizViewModel
+
+@{ ViewBag.Title = "Matriz de Habilidade - " + Model.AreaDescricao; }
+
+@section buttons{
+
+    <a href="/MatrizHabilidade/Planta?planta=@Model.PlantaId" title="Home">
+        <img src="~/Content/images/icons/Icones-01.png" />
+    </a>
+
+    <a href="/MatrizHabilidade/Maquina?planta=@Model.PlantaId&area=@Model.AreaId&maquina=@Model.MaquinaId" title="Maquina - @Model.MaquinaDescricao">
+        <img src="~/Content/images/icons/Icones-03.png" />
+    </a>
+
+    <a href="#" onclick="showModal('ModalFiltro')" title="Filtro">
+        <img src="~/Content/images/icons/Icones-04.png" />
+    </a>
+
+    <a href="#" onclick="exportDefaultTable()" title="Excel">
+        <img src="~/Content/images/Excel.png" />
+    </a>
+
+    @if (this.User.IsInRole(Roles.Adminstrador))
+    {
+<a href="#" onclick="exportFormulaTable()" title="Excel com fórmulas">
+    <img src="~/Content/images/Excel-10.png" />
+</a>}
+}
+
+@section css{
+
+    <link href="~/Content/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/css/matriz-habilidade.css?bust_js_cache=@System.IO.File.GetLastWriteTime("~/Content/css/matriz-habilidade.css").ToString("yyyy:MM:dd:HH:mm:ss")" rel="stylesheet" />
+
+    <link href="~/Content/autocomplete/autocomplete.css" rel="stylesheet" />
+    <style>
+
+        #TabelaContainer > div {
+            width: calc(33.6vw + 0.5vw + @Model.TiposTreinamento.SelectMany(t => t.Treinamentos).Count() * 7.5vw + @Model.TreinamentosEspecificos.Count * 7.5vw);
+        }
+
+    </style>
+}
+
+@section js{
+    <script src="~/Content/autocomplete/autocomplete.v1.js"></script>
+    <script src="~/Content/autocomplete/autocomplete.init.js"></script>
+    <script src="~/Content/autocomplete/autocomplete.add-on.js"></script>
+
+    <script src="~/Content/js/tableToExcel.js?bust_js_cache=@System.IO.File.GetLastWriteTime("~/Content/css/matriz-habilidade.css").ToString("yyyy:MM:dd:HH:mm:ss")" rel="stylesheet" />
+    
+
+    <script src="~/Content/js/table-export/blob.min.js"></script>
+    <script src="~/Content/js/table-export/xlsx.js"></script>
+    <script src="~/Content/js/table-export/filesaver.min.js"></script>
+    <script src="~/Content/js/table-export/tableexport.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+
+    <script src="~/Content/js/matriz.js?bust_js_cache=@System.IO.File.GetLastWriteTime("~/Content/js/matriz.js").ToString("yyyy:MM:dd:HH:mm:ss")"></script>
+}
+
+<div class="title flex-row">
+    <div class="flex-row">
+        <h3>@Model.PlantaDescricao</h3>
+        <h3 class="arrow">&#8250;</h3>
+        <h3>@Model.AreaDescricao</h3>
+        <h3 class="arrow">&#8250;</h3>
+        <h3>@Model.MaquinaDescricao</h3>
+    </div>
+</div>
+
+<div class="main">
+
+    <div id="TabelaContainer" class="flex-column canvas perfect-scroll disable-y">
+        <div class="flex-row">
+            <div class="flex-column">
+                <div class="flex-column legenda">
+                    <div class="flex-column">
+                        <div>
+                            @Model.MaquinaDescricao
+                        </div>
+                        <div class="flex-column flex-center">
+                            <p>LEGENDA:</p>
+                            <p>1 = Nenhum conhecimento</p>
+                            <p>2 = Possui conhecimento teórico, mas precisa de ajuda para aplicá-los na sua rotina</p>
+                            <p>3 = Domina plenamente e de maneira consistente as atividades práticas de sua rotina</p>
+                            <p>4 = Domina plenamente e consegue ensinar a teoria e a prática e atuar como suporte à outros profissionais</p>
+                            <p>NA = Não se aplica a atividade</p>
+                        </div>
+                        <div>
+                            <div>
+                                <span>Pilar E&T</span>
+                            </div>
+                            <div class="text-center">
+                                <img src="~/Content/images/Logo sistema2.svg" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <span class="flex-grow-1 border-right border-gray">GAP GERAL DE CONHECIMENTO:</span>
+                        <span class="w-25">@Model.GAPGeral.Conhecimento%</span>
+                    </div>
+                    <div class="d-flex lighter">
+                        <span class="flex-grow-1 border-right border-gray">GAP GERAL DE PROFISSIONAIS A SEREM TREINADOS:</span>
+                        <span class="w-25">@Model.GAPGeral.Treinamento%</span>
+                    </div>
+                    <div class="flex-row">
+                        <div class="flex-center">Chapa</div>
+                        <div class="flex-center">Nome</div>
+                        <div class="flex-center">Função</div>
+                        <div class="flex-center">Instrutor<br />Interno</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-row">
+
+                @foreach (var tipo in Model.TiposTreinamento)
+                {
+    <div class="flex-column treinamento-container">
+        <div class="title" style="background-color: @tipo.CorTitulo">@tipo.Descricao</div>
+        <div class="flex-row" style="background-color: @tipo.CorTreinamento">
+            @foreach (var treinamento in tipo.Treinamentos)
+            {
+<div class="vertical-text flex-center" style="color: @tipo.CorFonte"><span>@treinamento.Descricao</span></div>}
+        </div>
+        <div class="title" style="background-color: @tipo.CorTitulo">@tipo.GAP.Conhecimento%</div>
+        <div class="title" style="background-color: @tipo.CorTituloClara">@tipo.GAP.Treinamento%</div>
+        <div class="flex-row">
+            @foreach (var treinamento in tipo.Treinamentos)
+            {
+<div class="flex-center">Nota</div>
+                    <div class="flex-center">Meta</div>
+                                        <div class="flex-center">Status <br> Trein.</div>}
+        </div>
+    </div>}
+
+                <div class="flex-column treinamento-container especifico">
+                    <div class="title">ESPECÍFICO</div>
+                    <div class="flex-row">
+                        @foreach (var treinamento in Model.TreinamentosEspecificos)
+                        {
+            <div class="vertical-text flex-center"><span>@treinamento.Descricao</span></div>}
+                    </div>
+                    <div class="title">@Model.GAPTipoEspecifico.Conhecimento%</div>
+                    <div class="title lighter">@Model.GAPTipoEspecifico.Treinamento%</div>
+                    <div class="flex-row">
+                        @foreach (var treinamento in Model.TreinamentosEspecificos)
+                        {
+            <div class="flex-center">Nota</div>
+                            <div class="flex-center">Meta</div>
+                                            <div class="flex-center">Status <br> Trein.</div>}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="perfect-scroll disable-x">
+            <div class="flex-column user-container">
+                @foreach (var colaborador in Model.Colaboradores)
+                {
+    <div class="flex-row">
+        <div>@colaborador.Chapa</div>
+        <div>@colaborador.Nome</div>
+        <div>@colaborador.Funcao</div>
+        <div>@(colaborador.IsFacilitador ? "★" : "")</div>
+
+        @foreach (var treinamento in colaborador.Treinamentos)
+        {
+<div class="@treinamento.Nota.CellStyle.Class">@treinamento.Nota.Value</div>
+                    <div class="@treinamento.Meta.CellStyle.Class">@treinamento.Meta.Value</div>
+                                        <div class="@treinamento.IsOK.CellStyle.Class">@treinamento.IsOK.Value</div>}
+    </div>}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="ModalFiltro" class="modal">
+    <div class="background"></div>
+    <div class="content">
+        <form action="/MatrizHabilidade/Home/Matriz" method="get">
+
+            <input type="hidden" name="Planta" value="@Model.PlantaId" />
+            <input type="hidden" name="Area" value="@Model.AreaId" />
+            <input type="hidden" name="Maquina" value="@Model.MaquinaId" />
+
+            <div class="filtro-container flex-column">
+
+                <div class="flex-row filtro-title">
+                    <h3>Filtro</h3>
+                </div>
+                <div class="filtro-content">
+
+                    <div class="flex-row">
+                        <div>
+
+                            <div class="input">
+                                <div class="input flex-column">
+                                    <label>Profissionais</label>
+
+                                    <div id="AutocompleteColaboradores" data-url="/MatrizHabilidade/Home/GetColaborador" data-maquina="@Model.MaquinaId" onplay="onAutocompleteSelected('EditarColaborador', 'EditarColaboradorList')" class="autocomplete">
+                                        <input type="hidden" />
+                                        <input autocomplete="off" id="EditarColaborador" data-name="Colaboradores" type="text" />
+                                    </div>
+                                </div>
+
+                                <div id="EditarColaboradorList" class="selected-items">
+                                    <label>Profissionais Selecionados</label>
+                                    <div>
+                                        <ul class="content perfect-scroll">
+                                            @foreach (var colaborador in Model.FiltroColaboradores)
+                                            {
+                                <li title="@colaborador.Value" onclick="onAutocompleteRemoved(this)">
+                                    <input type="hidden" name="Colaboradores" value="@colaborador.Key" />
+                                    <span>@colaborador.Value</span>
+                                </li>}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div>
+                            <div class="input">
+                                <label>Tipo de Treinamento</label>
+                                <div class="custom-select">
+                                    <select onchange="getTreinamentos(this)" data-maquina="@Model.MaquinaId" name="Tipo">
+                                        if(Model.FiltroTipo == -1)
+                                        {
+                                        < option value = "-1" > Todos </ option >
+                                        }
+                                        else if(Model.FiltroTipo == 0)
+                                        {
+                                        < option value = "0" > Qualidade </ option >
+                                        }
+                                        else if(Model.FiltroTipo == 1)
+                                        {
+                                        < option value = "1" > Excelência </ option >
+                                        }
+                                        else if(Model.FiltroTipo == 2)
+                                        {
+                                        < option value = "2" > Específico </ option >
+                                        }
+
+                                        @*<option @(Model.FiltroTipo= =-1 ? "selected" : "" ) value="-1">Todos</option>
+                                            <option @(Model.FiltroTipo= =0 ? "selected" : "" ) value="0">Qualidade</option>
+                                            <option @(Model.FiltroTipo= =1 ? "selected" : "" ) value="1">Excelência</option>
+                                            <option @(Model.FiltroTipo= =2 ? "selected" : "" ) value="2">Específico</option>*@
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="input">
+                                <label>Treinamento</label>
+                                <div class="custom-select">
+                                    <select id="FiltroTreinamento" name="Treinamento">
+                                        @if (Model.FiltroTreinamento != null)
+                                        {
+                            <option selected value="@Model.FiltroTreinamento.Item1">@Model.FiltroTreinamento.Item2</option> foreach (var treinamento in Model.TreinamentosFiltrados)
+                                            {
+                            <option value="@treinamento.Key">@treinamento.Value</option> }
+                                        }
+                                        else
+                                        {
+                            <option value="" style="display: none">Selecione</option>}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="input">
+                                <label>Nota</label>
+                                <div class="custom-select">
+                                    <select name="FiltroNota">
+                                        if(Model.FiltroNota == -1)
+                                        {
+                                        < option value = "-1" > Todas </ option >
+                                        }
+                                        else if(Model.FiltroNota == 0)
+                                        {
+                                        < option value = "0" > Vazio </ option >
+                                        }
+                                        else if(Model.FiltroNota == 1)
+                                        {
+                                        < option value = "1" > 1 </ option >
+                                        }
+                                        else if(Model.FiltroNota == 2)
+                                        {
+                                        < option value = "2" > 2 </ option >
+                                        }
+                                        else if(Model.FiltroNota == 3)
+                                        {
+                                        < option value = "3" > 3 </ option >
+                                        }
+                                        else if(Model.FiltroNota == 4)
+                                        {
+                                        < option value = "4" > 4 </ option >
+                                        }
+                                        else
+                                        {
+                                        < option value = "-2" > NA </ option >
+                                        }
+
+                                        @*<option @(Model.FiltroNota == -1 ? "selected" : "") value="-1">Todas</option>
+                                            <option @(Model.FiltroNota == 0 ? "selected" : "") value="0">Vazio</option>
+                                            <option @(Model.FiltroNota == 1 ? "selected" : "") value="1">1</option>
+                                            <option @(Model.FiltroNota == 2 ? "selected" : "") value="2">2</option>
+                                            <option @(Model.FiltroNota == 3 ? "selected" : "") value="3">3</option>
+                                            <option @(Model.FiltroNota == 4 ? "selected" : "") value="4">4</option>
+                                            <option @(Model.FiltroNota == 4 ? "selected" : "") value="-2">NA</option>*@
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="input">
+                                <label>Meta</label>
+                                <div class="custom-select">
+                                    <select name="FiltroMeta">
+                                        if(Model.FiltroNota == -1)
+                                        {
+                                        < option value = "-1" > Todas </ option >
+                                        }
+                                        else if(Model.FiltroNota == 0)
+                                        {
+                                        < option value = "0" > Vazio </ option >
+                                        }
+                                        else if(Model.FiltroNota == 1)
+                                        {
+                                        < option value = "1" > 1 </ option >
+                                        }
+                                        else if(Model.FiltroNota == 2)
+                                        {
+                                        < option value = "2" > 2 </ option >
+                                        }
+                                        else if(Model.FiltroNota == 3)
+                                        {
+                                        < option value = "3" > 3 </ option >
+                                        }
+                                        else if(Model.FiltroNota == 4)
+                                        {
+                                        < option value = "4" > 4 </ option >
+                                        }
+                                        else
+                                        {
+                                        < option value = "-2" > NA </ option >
+                                        }
+
+                                        @*<option @(Model.FiltroMeta == -1 ? "selected" : "") value="-1">Todas</option>
+                                            <option @(Model.FiltroMeta == 0 ? "selected" : "") value="0">Vazio</option>
+                                            <option @(Model.FiltroMeta == 1 ? "selected" : "") value="1">1</option>
+                                            <option @(Model.FiltroMeta == 2 ? "selected" : "") value="2">2</option>
+                                            <option @(Model.FiltroMeta == 3 ? "selected" : "") value="3">3</option>
+                                            <option @(Model.FiltroMeta == 4 ? "selected" : "") value="4">4</option>
+                                            <option @(Model.FiltroMeta == 4 ? "selected" : "") value="-2">NA</option>*@
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="input">
+                                <label>Status Trein.</label>
+                                <div class="custom-select">
+                                    <select name="FiltroStatus">
+                                        if(Model.FiltroNota == -1)
+                                        {
+                                        < option value = "-1" > Todos </ option >
+                                        }
+                                        else if(Model.FiltroNota == 0)
+                                        {
+                                        < option value = "0" > OK </ option >
+                                        }
+                                        else if(Model.FiltroNota == 1)
+                                        {
+                                        < option value = "1" > NOK </ option >
+                                        }
+                                        else
+                                        {
+                                        < option value = "-2" > NA </ option >
+                                        }
+
+                                        @*<option @(Model.FiltroStatus == -1 ? "selected" : "") value="-1">Todos</option>
+                                            <option @(Model.FiltroStatus == 0 ? "selected" : "") value="0">OK</option>
+                                            <option @(Model.FiltroStatus == 1 ? "selected" : "") value="1">NOK</option>
+                                            <option @(Model.FiltroStatus == 2 ? "selected" : "") value="-2">NA</option>*@
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="flex-row">
+                    <button class="btn cinza clickable" type="submit">Filtrar</button>
+                    <button class="btn cinza clickable" type="button" onclick="limparTabelaMatriz()">Limpar</button>
+                </div>
+
+            </div>
+
+        </form>
+        <div class="close">x</div>
+    </div>
+</div>
+
+<table id="TabelaMatriz" data-name="Tabela Matriz @Model.MaquinaDescricao" class="hidden" data-cols-width="30,30,30">
+    <thead>
+        <tr>
+            <th data-a-v="middle" data-f-sz="18" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="true" colspan="4" rowspan="1" class="left legenda">
+                @Model.MaquinaDescricao
+            </th>
+
+            @foreach (var tipo in Model.TiposTreinamento)
+            {
+                if (tipo.Treinamentos.Count > 0)
+                {
+<th colspan="@(tipo.Treinamentos.Count * 3)" data-fill-color="@tipo.CorTitulo.Replace("#", "")" data-b-a-c="666666" data-b-a-s="thin" data-f-color="ffffff" data-a-h="center" class="header">@tipo.Descricao</th>                }
+            }
+
+            @if (Model.TreinamentosEspecificos.Count > 0)
+            {
+<th colspan="@(Model.TreinamentosEspecificos.Count * 3)" data-fill-color="60bc23" data-b-a-c="666666" data-b-a-s="thin" data-f-color="ffffff" data-a-h="center" class="especifico header">ESPECÍFICO</th>            }
+        </tr>
+        <tr data-height="200">
+            <th data-a-v="middle" data-a-h="left" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="true" colspan="4" rowspan="1" class="left legenda">
+                LEGENDA: <br />
+                1 = Nenhum conhecimento <br />
+                2 = Possui conhecimento teórico, mas precisa de ajuda para aplicá-los na sua rotina <br />
+                3 = Domina plenamente e de maneira consistente as atividades práticas de sua rotina <br />
+                4 = Domina plenamente e consegue ensinar a teoria e a prática e atuar como suporte à outros profissionais <br />
+                NA = Não se aplica a atividade
+            </th>
+
+            @foreach (var tipo in Model.TiposTreinamento)
+            {
+                foreach (var treinamento in tipo.Treinamentos)
+                {
+<th class="vertical-text treinamento" data-fill-color="@tipo.CorTreinamento.Replace("#", "")" data-b-a-c="666666" data-b-a-s="thin" data-a-text-rotation="90" data-a-h="center" data-a-v="middle" data-a-wrap="true" colspan="3" rowspan="2"><span>@treinamento.Descricao</span></th>                }
+            }
+
+            @foreach (var treinamento in Model.TreinamentosEspecificos)
+            {
+<th class="vertical-text treinamento especifico" data-fill-color="cefbad" data-b-a-c="666666" data-b-a-s="thin" data-a-text-rotation="90" data-a-h="center" data-a-v="middle" data-a-wrap="true" colspan="3" rowspan="2"><span>@treinamento.Descricao</span></th>            }
+        </tr>
+        <tr>
+            <th data-a-v="middle" data-a-h="center" data-underline="true" data-fill-color="c1d72e" data-b-a-s="thin" data-b-a-c="666666" data-a-wrap="true" colspan="4" rowspan="1" class="left legenda">
+                Pilar E&T
+            </th>
+        </tr>
+        <tr>
+            <th colspan="2" data-a-h="center" data-b-a-c="666666" data-b-a-s="thin" data-fill-color="bfbfbf">GAP GERAL DE CONHECIMENTO:</th>
+            <th colspan="2" data-a-h="center" data-b-a-c="666666" data-b-a-s="thin" data-fill-color="bfbfbf">@Model.GAPGeral.Conhecimento%</th>
+
+            @foreach (var tipo in Model.TiposTreinamento)
+            {
+                if (tipo.Treinamentos.Count > 0)
+                {
+<th data-b-a-c="666666" data-b-a-s="thin" colspan="@(tipo.Treinamentos.Count * 3)" data-fill-color="@tipo.CorTitulo.Replace("#", "")" data-f-color="ffffff" data-a-v="middle" data-a-h="center" data-t="s" class="qualidade header">@tipo.GAP.Conhecimento%</th>                }
+            }
+
+            @if (Model.TreinamentosEspecificos.Count > 0)
+            {
+<th data-b-a-c="666666" data-b-a-s="thin" colspan="@(Model.TreinamentosEspecificos.Count * 3)" data-fill-color="60bc23" data-f-color="ffffff" data-a-v="middle" data-a-h="center" data-t="s" class="especifico header">@Model.GAPTipoEspecifico.Conhecimento%</th>            }
+
+        </tr>
+        <tr>
+            <th colspan="2" data-a-h="center" data-b-a-c="666666" data-b-a-s="thin" data-fill-color="d9d9d9">GAP GERAL DE PROFISSIONAIS A SEREM TREINADOS:</th>
+            <th colspan="2" data-a-h="center" data-b-a-c="666666" data-b-a-s="thin" data-fill-color="d9d9d9">@Model.GAPGeral.Treinamento%</th>
+
+            @foreach (var tipo in Model.TiposTreinamento)
+            {
+                if (tipo.Treinamentos.Count > 0)
+                {
+<th data-b-a-c="666666" data-b-a-s="thin" colspan="@(tipo.Treinamentos.Count * 3)" data-fill-color="@tipo.CorTituloClara.Replace("#", "")" data-f-color="ffffff" data-a-v="middle" data-a-h="center" data-t="s" class="qualidade header">@tipo.GAP.Treinamento%</th>                }
+            }
+
+            @if (Model.TreinamentosEspecificos.Count > 0)
+            {
+<th data-b-a-c="666666" data-b-a-s="thin" colspan="@(Model.TreinamentosEspecificos.Count * 3)" data-fill-color="8bdf53" data-f-color="ffffff" data-a-v="middle" data-a-h="center" data-t="s" class="especifico header">@Model.GAPTipoEspecifico.Treinamento%</th>            }
+        </tr>
+        <tr>
+            <th data-b-a-c="666666" data-b-a-s="thin" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">CHAPA</th>
+            <th data-b-a-c="666666" data-b-a-s="thin" class="nome" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">NOME</th>
+            <th data-b-a-c="666666" data-b-a-s="thin" class="funcao" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">FUNÇÂO</th>
+            <th data-b-a-c="666666" data-b-a-s="thin" class="funcao" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">Intrutor<br />Interno</th>
+
+            @foreach (var tipo in Model.TiposTreinamento.SelectMany(t => t.Treinamentos))
+            {
+<th data-b-a-c="666666" data-b-a-s="thin" data-a-wrap="true" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">Nota</th>
+                <th data-b-a-c="666666" data-b-a-s="thin" data-a-wrap="true" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">Meta</th>
+                                <th data-b-a-c="666666" data-b-a-s="thin" data-a-wrap="true" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">Status <br /> Trein.</th>            }
+
+            @foreach (var treinamento in Model.TreinamentosEspecificos)
+            {
+<th data-b-a-c="666666" data-b-a-s="thin" data-a-wrap="true" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">Nota</th>
+                <th data-b-a-c="666666" data-b-a-s="thin" data-a-wrap="true" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">Meta</th>
+                                <th data-b-a-c="666666" data-b-a-s="thin" data-a-wrap="true" data-fill-color="bfbfbf" data-a-v="middle" data-a-h="center">Status <br /> Trein.</th>            }
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var colaborador in Model.Colaboradores)
+        {
+<tr data-b-a-c="666666" data-b-a-s="thin">
+    <td data-b-a-c="666666" data-b-a-s="thin" data-fill-color="ebebeb">@colaborador.Chapa</td>
+    <td data-b-a-c="666666" data-b-a-s="thin" data-fill-color="ebebeb">@colaborador.Nome</td>
+    <td data-b-a-c="666666" data-b-a-s="thin" data-fill-color="ebebeb">@colaborador.Funcao</td>
+    <td data-b-a-c="666666" data-b-a-s="thin" data-fill-color="ebebeb">@(colaborador.IsFacilitador ? "★" : "")</td>
+
+    @foreach (var treinamento in colaborador.Treinamentos)
+    {
+<td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-t="@treinamento.Nota.CellType.Value" data-f-color="@treinamento.Nota.CellStyle.FontColor" data-fill-color="@treinamento.Nota.CellStyle.BackgroundColor">@treinamento.Nota.Value</td>
+                    <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-t="@treinamento.Meta.CellType.Value" data-f-color="@treinamento.Meta.CellStyle.FontColor" data-fill-color="@treinamento.Meta.CellStyle.BackgroundColor">@treinamento.Meta.Value</td>
+                                        <td data-b-a-c="666666" data-b-a-s="thin" data-a-h="center" data-t="@treinamento.IsOK.CellType.Value" data-f-color="@treinamento.IsOK.CellStyle.FontColor" data-fill-color="@treinamento.IsOK.CellStyle.BackgroundColor">@treinamento.IsOK.Value</td>                }
+</tr>}
+
+        @{ int i;
+                        var lastRow = 6 + Model.Colaboradores.Count;
+                        var quantidadeColunas = (Model.TreinamentosEspecificos.Count + Model.TiposTreinamento.SelectMany(t => t.Treinamentos).Count()) * 3; }
+
+        <tr class="formula">
+            <td colspan="4"></td>
+
+            @{ i = 5; }
+
+            @for (var x = 0; x < quantidadeColunas; x++, i++)
+            {
+<td data-t="f">IF(@(Model.GetExcelColumnName(i))6="Nota",SUM(@(Model.GetExcelColumnName(i))7:@(Model.GetExcelColumnName(i))@(lastRow)),0)</td>            }
+        </tr>
+
+        <tr class="formula">
+            <td colspan="4"></td>
+
+            @{ i = 5; }
+
+            @for (var x = 0; x < quantidadeColunas; x++, i++)
+            {
+<td data-t="f">IF(@(Model.GetExcelColumnName(i))6="Meta",SUMIF(@(Model.GetExcelColumnName(i))7:@(Model.GetExcelColumnName(i))@(lastRow),">1"),0)</td>            }
+        </tr>
+
+        <tr class="formula">
+            <td colspan="4"></td>
+
+            @{ i = 5; }
+
+            @for (var x = 0; x < quantidadeColunas; x++, i++)
+            {
+<td data-t="f">
+    IF(ISNUMBER(SEARCH("Status",@(Model.GetExcelColumnName(i))6)),COUNTIF(@(Model.GetExcelColumnName(i))7:@(Model.GetExcelColumnName(i))@(lastRow),"OK"),0)
+</td>            }
+        </tr>
+
+        <tr class="formula">
+            <td colspan="4"></td>
+
+            @{ i = 5; }
+
+            @for (var x = 0; x < quantidadeColunas; x++, i++)
+            {
+<td data-t="f">
+    IF(ISNUMBER(SEARCH("Status",@(Model.GetExcelColumnName(i))6)),COUNTIF(@(Model.GetExcelColumnName(i))7:@(Model.GetExcelColumnName(i))@(lastRow),"OK")+COUNTIF(@(Model.GetExcelColumnName(i))7:@(Model.GetExcelColumnName(i))@(lastRow),"NOK"),0)
+</td>            }
+        </tr>
+
+        <tr></tr>
+
+        <tr class="formula">
+            <td>Somatória da nota</td>
+            <td>Somatória da meta</td>
+            <td>Somatória da presença</td>
+            <td>Somatória de treinamentos disponíveis</td>
+            <td>GAP GERAL DE CONHECIMENTO</td>
+            <td>GAP GERAL DE PROFISSIONAIS A SEREM TREINADOS</td>
+        </tr>
+
+        <tr class="formula">
+            @{ quantidadeColunas += 4;
+                            lastRow += 1; }
+            <td data-t="f">SUM(E@(lastRow):@(Model.GetExcelColumnName(quantidadeColunas))@(lastRow))</td>
+
+            @{ lastRow += 1; }
+            <td data-t="f">SUM(E@(lastRow):@(Model.GetExcelColumnName(quantidadeColunas))@(lastRow))</td>
+
+            @{ lastRow += 1; }
+            <td data-t="f">SUM(E@(lastRow):@(Model.GetExcelColumnName(quantidadeColunas))@(lastRow))</td>
+
+            @{ lastRow += 1; }
+            <td data-t="f">SUM(E@(lastRow):@(Model.GetExcelColumnName(quantidadeColunas))@(lastRow))</td>
+
+            @{ lastRow += 3; }
+            <td data-t="f">(1-A@(lastRow)/B@(lastRow))*100</td>
+            <td data-t="f">(1-C@(lastRow)/D@(lastRow))*100</td>
+        </tr>
+    </tbody>
+</table>
