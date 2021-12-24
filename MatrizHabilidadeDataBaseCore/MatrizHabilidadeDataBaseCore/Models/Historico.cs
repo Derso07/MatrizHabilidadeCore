@@ -31,15 +31,15 @@ namespace MatrizHabilidadeDatabase.Models
             DataCongelamento = DateTime.Now;
         }
 
-        [Key, Column(Order = 0)]
+        [Column(Order = 0)]
         public TipoHistorico Tipo { get; set; }
 
-        [Key, Column(Order = 1)]
+        [Column(Order = 1)]
         public DateTime DataCorrespondente { get; set; }
 
         public double Valor { get; set; }
 
-        [Key, Column(Order = 2)]
+        [Column(Order = 2)]
         public int MaquinaId { get; set; }
 
         public Maquina Maquina { get; set; }
@@ -55,18 +55,18 @@ namespace MatrizHabilidadeDatabase.Models
             DataCongelamento = DateTime.Now;
         }
 
-        [Key, Column(Order = 0)]
+        [Column(Order = 0)]
         public TipoHistorico Tipo { get; set; }
 
-        [Key, Column(Order = 1)]
+        [Column(Order = 1)]
         public DateTime DataCorrespondente { get; set; }
 
         public double Valor { get; set; }
 
-        [Key, Column(Order = 2)]
+        [Column(Order = 2)]
         public int CoordenadorId { get; set; }
 
-        [Key, Column(Order = 3)]
+        [Column(Order = 3)]
         public int AreaId { get; set; }
 
         public Area Area { get; set; }

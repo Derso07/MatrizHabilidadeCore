@@ -14,7 +14,7 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class AreaController : BaseController
     {
-        public AreaController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService _cookieService, ClaimService _claimService):base(_db, userManager, _cookieService, _claimService)
+        public AreaController(DataBaseContext _db, CookieService _cookieService):base(_db, _cookieService)
         {
         }
         public ActionResult Index(string planta, string area, bool? isRedirected)

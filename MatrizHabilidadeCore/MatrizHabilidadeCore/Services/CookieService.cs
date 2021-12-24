@@ -14,18 +14,17 @@ namespace MatrizHabilidadeCore.Services
             _httpContextAccessor = httpContextAcessor;
         }
 
-        public void SetCookie(CookieViewModel cookie)
+        public void SetCookie<T>(string name, T value)
         {
-            string value = JsonConvert.SerializeObject(cookie);
-            string encryptedValue = Encrypting.Encrypt(value);
-            _httpContextAccessor.HttpContext.Response.Cookies.Append(cookie.Usu_nome, encryptedValue);
+            string cookieValue = JsonConvert.SerializeObject(value);
+            string encryptedValue = Encrypting.Encrypt(cookieValue);
+            _httpContextAccessor.HttpContext.Response.Cookies.Append(name, encryptedValue);
         }
 
-        public string GetCookie()
+        public T GetCookie<T>(string name)
         {
-            var cookie = _httpContextAccessor.HttpContext.Request.Cookies;
-            CookieViewModel model = JsonConvert.DeserializeObject<CookieViewModel>(Encrypting.Decrypt(cookie.ToString()));
-            return model.ToString();
+            var cookie = _httpContextAccessor.HttpContext.Request.Cookies[name];
+            return JsonConvert.DeserializeObject<T>(Encrypting.Decrypt(cookie));
         }
     }
 }

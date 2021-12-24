@@ -15,7 +15,7 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class PlanoAcaoController : BaseController
     {
-        public PlanoAcaoController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(_db, userManager, cookieService, _claimService)
+        public PlanoAcaoController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
         {
         }
         public enum ReturnUrl
@@ -106,7 +106,7 @@ namespace MatrizHabilidadeCore.Controllers
 
             var query = _db.PlanosAcao.AsQueryable();
 
-            if (CurrentUser.UsuarioAcesso == (int)NivelAcesso.Funcionario)
+            if (CurrentUser.UsuarioAcesso == NivelAcesso.Funcionario)
             {
                 var colaborador = (Colaborador)usuario.Colaborador;
 

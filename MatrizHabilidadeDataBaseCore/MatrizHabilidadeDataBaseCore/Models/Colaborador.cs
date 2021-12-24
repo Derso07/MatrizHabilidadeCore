@@ -9,7 +9,7 @@ namespace MatrizHabilidadeDatabase.Models
     public class Colaborador
     {
 
-        public int UsuarioId { get; set; }
+        public int Id { get; set; }
 
         public int? UniorgId { get; set; }
 
@@ -27,11 +27,9 @@ namespace MatrizHabilidadeDatabase.Models
 
         public virtual List<PlanoAcao> PlanosAcaoResponsavel { get; set; }
 
-        public virtual List<PlanoAcao> PlanosAcao { get; set; }
+        public virtual List<PlanoAcao> PlanosAcoes { get; set; }
 
         public virtual List<Retreinamento> Retreinamentos { get; set; }
-
-        public virtual Usuario Usuario { get; set; }
 
         public bool IsFacilitador { get; set; }
 

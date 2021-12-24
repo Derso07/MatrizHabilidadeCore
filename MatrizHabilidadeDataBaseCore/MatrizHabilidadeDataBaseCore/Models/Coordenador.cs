@@ -26,7 +26,8 @@ namespace MatrizHabilidadeDatabase.Models
 
         public virtual List<Retreinamento> Retreinamentos { get; set; }
 
-        public virtual Usuario Usuario { get; set; }
+        public virtual List<PlanoAcao> PlanoAcoes { get; set; }
+
 
     }
 }

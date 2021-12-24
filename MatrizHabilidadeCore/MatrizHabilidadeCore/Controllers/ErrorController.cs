@@ -17,7 +17,7 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class ErrorController : BaseController
     {
-        public ErrorController(DataBaseContext db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(db, userManager, cookieService, _claimService) { }
+        public ErrorController(DataBaseContext db, CookieService cookieService) : base(db, cookieService) { }
 
         public IActionResult Index()
         {

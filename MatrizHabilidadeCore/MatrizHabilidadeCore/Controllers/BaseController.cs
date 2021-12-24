@@ -5,9 +5,7 @@ using MatrizHabilidadeDataBaseCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -17,16 +15,12 @@ namespace MatrizHabilidadeCore.Controllers
     public class BaseController : Controller
     {
         protected readonly DataBaseContext _db;
-        protected readonly UserManager<Usuario> _userManager;
         protected readonly CookieService _cookieService;
-        protected readonly ClaimService _claimService;
 
-        public BaseController(DataBaseContext db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService claimService)
+        public BaseController(DataBaseContext db, CookieService cookieService)
         {
             _db = db;
-            _userManager = userManager;
             _cookieService = cookieService;
-            _claimService = claimService;
         }
 
         private Usuario _currentUser;
@@ -37,10 +31,10 @@ namespace MatrizHabilidadeCore.Controllers
             {
                 if (_currentUser == null)
                 {
-                    var userName = User.FindFirstValue(ClaimTypes.Name);
+                    var userName = User.FindFirstValue(Claims.UserId.Value);
 
-                    CurrentUser = _userManager.Users
-                        .Where(u => u.UserName == userName)
+                    CurrentUser = _db.Usuarios
+                        .Where(u => u.Nome == userName)
                         .FirstOrDefault();
                 }
                 return _currentUser;
@@ -53,25 +47,37 @@ namespace MatrizHabilidadeCore.Controllers
         {
             _currentYear = year;
             TempData[Claims.CurrentYear.Value] = year;
-            await _claimService.AddUpdateClaim(Claims.CurrentYear, year.ToString());
+            var claim = _db.Claims.Where(c => c.UsuarioId == _currentUser.Id && c.ClaimType == Claims.CurrentYear.Value).FirstOrDefault();
+            if (claim == null )
+            {
+                _db.Claims.Add(new MatrizHabilidadeDataBaseCore.Models.Claim() {
+                    ClaimType = Claims.CurrentYear.Value,
+                    ClaimValue = year.ToString()
+                });
+            }
+            else
+            {
+                claim.ClaimValue = year.ToString();
+                _db.Update(claim);
+                _db.SaveChanges();
+            }
 
             return 0;
         }
 
         public int GetCurrentYear()
         {
+            var year = _db.Claims.Where(y => y.UsuarioId == CurrentUser.Id && y.ClaimType == Claims.CurrentYear.Value).Select(y => y.ClaimValue).FirstOrDefault();
+            _currentYear = Convert.ToInt32(year);
             return _currentYear.Value;
         }
 
         public async override Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var year = await _claimService.GetClaimValue<int>(Claims.CurrentYear);
-            _currentYear = year;
-            TempData[Claims.CurrentYear.Value] = year;
-
+            TempData[Claims.CurrentYear.Value] = GetCurrentYear();
             return;
         }
-       
+
         protected void SetMessage(string message)
         {
             TempData["Message"] = message;

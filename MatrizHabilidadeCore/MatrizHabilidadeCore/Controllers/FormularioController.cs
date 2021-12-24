@@ -21,7 +21,7 @@ namespace MatrizHabilidadeCore.Controllers
     public class FormularioController : BaseController
     {
 
-        public FormularioController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(_db, userManager, cookieService, _claimService)
+        public FormularioController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
         {
 
         }
@@ -88,7 +88,7 @@ namespace MatrizHabilidadeCore.Controllers
                 .OrderBy(a => a.Alias)
                 .ToList();
 
-            if (CurrentUser.UsuarioAcesso <= (int)NivelAcesso.Administrador)
+            if (CurrentUser.UsuarioAcesso <= NivelAcesso.Administrador)
             {
                 foreach (var area in areas)
                 {
@@ -515,7 +515,7 @@ namespace MatrizHabilidadeCore.Controllers
                     query = query.Where(c => c.Usuario.Nome.ToLower().Contains(operador.ToLower()) || c.Usuario.Chapa.ToLower().Contains(operador.ToLower()));
                 }
 
-                if (CurrentUser.UsuarioAcesso > (int)NivelAcesso.Administrador)
+                if (CurrentUser.UsuarioAcesso > NivelAcesso.Administrador)
                 {
                     query = query.Where(c => c.Uniorg.CoordenadorId == coordenador.Usuario.Id);
                 }
@@ -622,7 +622,7 @@ namespace MatrizHabilidadeCore.Controllers
                 treinamentos = treinamentos.Where(t => t.Maquinas.Any(m => m.Id == maquinaId.Value));
             }
 
-            if (CurrentUser.UsuarioAcesso > (int)NivelAcesso.Administrador)
+            if (CurrentUser.UsuarioAcesso > NivelAcesso.Administrador)
             {
                 var coordenador = _db.Coordenadores.Where(u => u.Usuario.Login.ToLower() == CurrentUser.Email.ToLower()).FirstOrDefault();
 

@@ -1,4 +1,5 @@
 ﻿using MatrizHabilidadeDatabase.Models;
+using MatrizHabilidadeDataBaseCore.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,8 @@ namespace MatrizHabilidadeDataBaseCore
         public DbSet<Categoria> Categorias { get; set; }
 
         public DbSet<CadastroCoordenador> CadastroCoordenadores { get; set; }
+
+        public DbSet<Claim> Claims { get; set; }
 
         public DbSet<ConfiguracaoIntegracaoTreinamento> Integracoes { get; set; }
 
@@ -85,6 +88,9 @@ namespace MatrizHabilidadeDataBaseCore
 
         public DbSet<IntegrationLog> IntegrationLogs { get; set; }
 
+        public DbSet<Usuario> Usuarios { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataBaseContext).Assembly);
@@ -100,6 +106,47 @@ namespace MatrizHabilidadeDataBaseCore
                 .HasOne(a => a.Colaborador)
                 .WithOne(b => b.Usuario)
                 .HasForeignKey<Colaborador>(b => b.UsuarioId);
+
+            modelBuilder.Entity<Claim>()
+                .HasOne(c => c.Usuario)
+                .WithMany(c => c.Claims)
+                .HasForeignKey(c => c.UsuarioId);
+
+            modelBuilder.Entity<Claim>()
+                .HasKey(c => new { c.ClaimType, c.UsuarioId });
+
+            modelBuilder.Entity<PlanoAcao>()
+                .HasOne(p => p.CoordenadorResponsavel)
+                .WithMany(p => p.ResponsavelPlanosAcao)
+                .HasForeignKey(p => p.CoordenadorResponsavelId);
+
+            modelBuilder.Entity<PlanoAcao>()
+                .HasOne(p => p.ColaboradorResponsavel)
+                .WithMany(p => p.PlanosAcaoResponsavel)
+                .HasForeignKey(p => p.ColaboradorResponsavelId);
+
+            modelBuilder.Entity<PlanoAcao>()
+                .HasOne(p => p.Colaborador)
+                .WithMany(p => p.PlanosAcoes)
+                .HasForeignKey(p => p.ColaboradorId);
+
+            modelBuilder.Entity<PlanoAcao>()
+                .HasOne(p => p.Criador)
+                .WithMany(p => p.CriadorPlanosAcao)
+                .HasForeignKey(p => p.CriadorId);
+
+            modelBuilder.Entity<HistoricoCoordenador>()
+                .HasKey(h => new { h.Tipo, h.DataCorrespondente, h.CoordenadorId, h.AreaId });
+
+            modelBuilder.Entity<HistoricoMaquina>()
+                .HasKey(h => new { h.Tipo, h.DataCorrespondente, h.MaquinaId });
+
+            modelBuilder.Entity<ViewTreinamento>()
+                .HasKey(v => new { v.PlantaId, v.AreaId, v.CoordenadorId, v.MaquinaId, v.ColaboradorId, v.TreinamentoId, v.TipoTreinamentoId });
+
+            modelBuilder.Entity<ViewTreinamentoEspecifico>()
+                .HasKey(v => new { v.PlantaId, v.AreaId, v.CoordenadorId, v.ColaboradorId, v.MaquinaId, v.TreinamentoEspecificoId });
+            
         }
     }
 }

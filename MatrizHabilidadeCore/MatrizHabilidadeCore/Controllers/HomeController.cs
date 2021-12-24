@@ -20,7 +20,7 @@ namespace MatrizHabilidadeCore.Controllers
     public class HomeController : BaseController
     {
 
-        public HomeController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService _cookieService, ClaimService _claimService) : base(_db, userManager, _cookieService, _claimService)
+        public HomeController(DataBaseContext _db, CookieService _cookieService) : base(_db, _cookieService)
         {
         }
 
@@ -32,7 +32,7 @@ namespace MatrizHabilidadeCore.Controllers
         public async Task<IActionResult> Index()
         {
             var model = new Dictionary<string, string>();
-
+            
             foreach (var planta in _db.Plantas.Where(p => p.IsAtivo).ToList())
             {
                 var key = Encrypting.Encrypt(planta.Id.ToString());

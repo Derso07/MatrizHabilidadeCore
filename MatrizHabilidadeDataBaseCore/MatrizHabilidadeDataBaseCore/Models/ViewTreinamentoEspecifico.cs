@@ -7,22 +7,22 @@ namespace MatrizHabilidadeDatabase.Models
     [Table("treinamento_especifico_complete")]
     public class ViewTreinamentoEspecifico
     {
-        [Key, Column(Order = 0)]
+        [Column(Order = 0)]
         public int PlantaId { get; set; }
 
-        [Key, Column(Order = 1)]
+        [Column(Order = 1)]
         public int AreaId { get; set; }
 
-        [Key, Column(Order = 2)]
+        [Column(Order = 2)]
         public int CoordenadorId { get; set; }
 
-        [Key, Column(Order = 3)]
+        [Column(Order = 3)]
         public int MaquinaId { get; set; }
 
-        [Key, Column(Order = 4)]
+        [Column(Order = 4)]
         public int ColaboradorId { get; set; }
 
-        [Key, Column(Order = 5)]
+        [Column(Order = 5)]
         public int TreinamentoEspecificoId { get; set; }
 
         public int? Meta { get; set; }

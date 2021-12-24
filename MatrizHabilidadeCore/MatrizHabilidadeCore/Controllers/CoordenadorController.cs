@@ -16,7 +16,7 @@ namespace MatrizHabilidadeCore.Controllers
     {
         private readonly HistoricoCalculatorService _historicoCalculatorService;
 
-        public CoordenadorController(DataBaseContext _db, UserManager<Usuario> userManager, CookieService cookieService, ClaimService _claimService) : base(_db, userManager, cookieService, _claimService)
+        public CoordenadorController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
         {
         }
         public ActionResult Index(string planta, string area)

@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using MatrizHabilidadeDatabase.Models;
 using MatrizHabilidadeCore.Services;
 using MatrizHabilidadeCore.Utility;
+using System.Security.Claims;
 
 namespace MatrizHabilidadeCore
 {
@@ -37,7 +38,6 @@ namespace MatrizHabilidadeCore
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.TryAddTransient<CookieService>();
-            services.TryAddTransient<ClaimService>();
 
             string connectionString = "";
 
@@ -52,23 +52,6 @@ namespace MatrizHabilidadeCore
                 options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 21)));
             }, ServiceLifetime.Transient);
 
-            services.AddIdentity<Usuario, IdentityRole<int>>(options =>
-            {
-                options.SignIn.RequireConfirmedAccount = false;
-                options.SignIn.RequireConfirmedEmail = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-
-                options.Password.RequiredLength = 8;
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-            })
-
-                .AddEntityFrameworkStores<DataBaseContext>()
-                .AddDefaultTokenProviders();
-                
-
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
                 options.Cookie.Name = "SuporteAnnimar";
@@ -80,11 +63,22 @@ namespace MatrizHabilidadeCore
                 options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
                 options.SlidingExpiration = true;
             });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(NivelAcesso.Administrador.ToString("g"), policy => policy.RequireClaim(ClaimTypes.Role, NivelAcesso.Administrador.ToString("g")));
+                options.AddPolicy(NivelAcesso.Coordenador.ToString("g"), policy => policy.RequireClaim(ClaimTypes.Role, NivelAcesso.Coordenador.ToString("g")));
+                options.AddPolicy(NivelAcesso.Funcionario.ToString("g"), policy => policy.RequireClaim(ClaimTypes.Role, NivelAcesso.Funcionario.ToString("g")));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
             app.UseExceptionHandler("/Error");
 
             app.UseStatusCodePages(context =>
