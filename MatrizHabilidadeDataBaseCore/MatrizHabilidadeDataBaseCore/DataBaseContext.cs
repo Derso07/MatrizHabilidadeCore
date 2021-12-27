@@ -88,32 +88,11 @@ namespace MatrizHabilidadeDataBaseCore
 
         public DbSet<IntegrationLog> IntegrationLogs { get; set; }
 
-        public DbSet<Usuario> Usuarios { get; set; }
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataBaseContext).Assembly);
 
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Usuario>()
-                .HasOne(a => a.Coordenador)
-                .WithOne(b => b.Usuario)
-                .HasForeignKey<Coordenador>(b => b.UsuarioId);
-
-            modelBuilder.Entity<Usuario>()
-                .HasOne(a => a.Colaborador)
-                .WithOne(b => b.Usuario)
-                .HasForeignKey<Colaborador>(b => b.UsuarioId);
-
-            modelBuilder.Entity<Claim>()
-                .HasOne(c => c.Usuario)
-                .WithMany(c => c.Claims)
-                .HasForeignKey(c => c.UsuarioId);
-
-            modelBuilder.Entity<Claim>()
-                .HasKey(c => new { c.ClaimType, c.UsuarioId });
 
             modelBuilder.Entity<PlanoAcao>()
                 .HasOne(p => p.CoordenadorResponsavel)

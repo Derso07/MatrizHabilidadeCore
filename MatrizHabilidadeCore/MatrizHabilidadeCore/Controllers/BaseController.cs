@@ -47,7 +47,7 @@ namespace MatrizHabilidadeCore.Controllers
         {
             _currentYear = year;
             TempData[Claims.CurrentYear.Value] = year;
-            var claim = _db.Claims.Where(c => c.UsuarioId == _currentUser.Id && c.ClaimType == Claims.CurrentYear.Value).FirstOrDefault();
+            var claim = _db.Claims.Where(c => c.Id == _currentUser.Id && c.ClaimType == Claims.CurrentYear.Value).FirstOrDefault();
             if (claim == null )
             {
                 _db.Claims.Add(new MatrizHabilidadeDataBaseCore.Models.Claim() {
@@ -67,7 +67,7 @@ namespace MatrizHabilidadeCore.Controllers
 
         public int GetCurrentYear()
         {
-            var year = _db.Claims.Where(y => y.UsuarioId == CurrentUser.Id && y.ClaimType == Claims.CurrentYear.Value).Select(y => y.ClaimValue).FirstOrDefault();
+            var year = _db.Claims.Where(y => y.Id == CurrentUser.Id && y.ClaimType == Claims.CurrentYear.Value).Select(y => y.ClaimValue).FirstOrDefault();
             _currentYear = Convert.ToInt32(year);
             return _currentYear.Value;
         }
