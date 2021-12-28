@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,27 +45,36 @@ namespace MatrizHabilidadeCore
 
             services.AddDbContext<DataBaseContext>(options =>
             {
-                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 21)));
+                options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 21)), (options) => 
+                {
+                    options.MigrationsAssembly("MatrizHabilidadeCore");
+                });
             }, ServiceLifetime.Transient);
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+            services.AddIdentity<Usuario, IdentityRole>(options =>
             {
-                options.Cookie.Name = "SuporteAnnimar";
-                options.Cookie.HttpOnly = true;
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+
+            }).AddEntityFrameworkStores<DataBaseContext>();
+
+            services.ConfigureApplicationCookie(options =>
+            {
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-                options.LoginPath = "/Usuario/Login";
+                options.LoginPath = "/User";
                 options.AccessDeniedPath = "/Error/AccessDenied";
 
                 options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
                 options.SlidingExpiration = true;
             });
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy(NivelAcesso.Administrador.ToString("g"), policy => policy.RequireClaim(ClaimTypes.Role, NivelAcesso.Administrador.ToString("g")));
-                options.AddPolicy(NivelAcesso.Coordenador.ToString("g"), policy => policy.RequireClaim(ClaimTypes.Role, NivelAcesso.Coordenador.ToString("g")));
-                options.AddPolicy(NivelAcesso.Funcionario.ToString("g"), policy => policy.RequireClaim(ClaimTypes.Role, NivelAcesso.Funcionario.ToString("g")));
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

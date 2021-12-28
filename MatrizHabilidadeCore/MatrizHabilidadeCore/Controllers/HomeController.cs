@@ -49,11 +49,11 @@ namespace MatrizHabilidadeCore.Controllers
                     _db.SaveChanges();
                 }
             }
-            
-            //if (Request.Browser.IsMobileDevice)
-            //{
-            //    return RedirectToAction("Index", "Formulario");
-            //}
+
+            if (Request.Browser.IsMobileDevice)
+            {
+                return RedirectToAction("Index", "Formulario");
+            }
 
             return View(model);
         }
@@ -73,11 +73,11 @@ namespace MatrizHabilidadeCore.Controllers
                 redirectUri = returnUrl;
             }
 
-            //var cookie = Util.Cookie.Get();
+            var cookie = Util.Cookie.Get();
 
-            //cookie.AnoSelecionado = ano;
+            cookie.AnoSelecionado = ano;
 
-            //Util.Cookie.Set(cookie);
+            Util.Cookie.Set(cookie);
 
             return Redirect(redirectUri);
         }
@@ -91,8 +91,8 @@ namespace MatrizHabilidadeCore.Controllers
             var query = _db.Colaboradores
                  .Where(c => c.Uniorg.Maquinas.Any(m => m.Id == maquinaId))
                  .Select(c => new AutoCompleteViewModel() {
-                     key = c.Usuario.Id.ToString(),
-                     value = $"{c.Usuario.Chapa} - {c.Usuario.Nome}"
+                     key = c.Id.ToString(),
+                     value = $"{c.Chapa} - {c.Nome}"
                  })
                  .ToList()
                  .Where(c => c.value.Contains(text))
@@ -190,7 +190,7 @@ namespace MatrizHabilidadeCore.Controllers
             UserInformationViewModel model = null;
 
             var colaborador = _db.Colaboradores
-                .Where(c => c.Usuario.Login.ToLower() == login.ToLower() || c.Usuario.Email.ToLower().StartsWith(email.ToLower()))
+                .Where(c => c.Login.ToLower() == login.ToLower() || c.Email.ToLower().StartsWith(email.ToLower()))
                 .FirstOrDefault();
 
             if (colaborador != null)
@@ -202,7 +202,7 @@ namespace MatrizHabilidadeCore.Controllers
 
                 if (colaborador.Uniorg != null)
                 {
-                    responsavel = colaborador.Uniorg.Coordenador.Usuario.Login;
+                    responsavel = colaborador.Uniorg.Coordenador.Login;
                     area = colaborador.Uniorg.Coordenador.Area.Descricao;
                     unidade = colaborador.Uniorg.Coordenador.Area.Planta.Descricao;
 
@@ -214,10 +214,10 @@ namespace MatrizHabilidadeCore.Controllers
 
                 model = new UserInformationViewModel
                 {
-                    Login = colaborador.Usuario.Login,
-                    Email = colaborador.Usuario.Email,
-                    Chapa = colaborador.Usuario.Chapa,
-                    Cargo = colaborador.Usuario.Funcao,
+                    Login = colaborador.Login,
+                    Email = colaborador.Email,
+                    Chapa = colaborador.Chapa,
+                    Cargo = colaborador.Funcao,
                     Maquina = maquina,
                     LoginResponsavel = responsavel,
                     Area = area,
@@ -227,17 +227,17 @@ namespace MatrizHabilidadeCore.Controllers
             else
             {
                 var coordenador = _db.Coordenadores
-                .Where(c => c.Usuario.Login.ToLower() == login.ToLower() || c.Usuario.Email.ToLower().StartsWith(email.ToLower()))
+                .Where(c => c.Login.ToLower() == login.ToLower() || c.Email.ToLower().StartsWith(email.ToLower()))
                 .FirstOrDefault();
 
                 if (coordenador != null)
                 {
                     model = new UserInformationViewModel
                     {
-                        Login = coordenador.Usuario.Login,
-                        Email = coordenador.Usuario.Email,
-                        Chapa = coordenador.Usuario.Chapa,
-                        Cargo = coordenador.Usuario.Funcao,
+                        Login = coordenador.Login,
+                        Email = coordenador.Email,
+                        Chapa = coordenador.Chapa,
+                        Cargo = coordenador.Funcao,
                         Area = coordenador.Area.Descricao,
                         Unidade = coordenador.Area.Planta.Descricao
                     };
@@ -270,11 +270,11 @@ namespace MatrizHabilidadeCore.Controllers
 
             var response = JsonConvert.DeserializeObject<APIResponseViewModel>(json);
 
-            var colaboradorQuery = _db.Colaboradores.Where(c => c.Usuario.Nome == response.NomeUsuario);
+            var colaboradorQuery = _db.Colaboradores.Where(c => c.Nome == response.NomeUsuario);
 
             if (!colaboradorQuery.Any())
             {
-                colaboradorQuery = _db.Colaboradores.Where(c => c.Usuario.Email == response.EmailUsuario);
+                colaboradorQuery = _db.Colaboradores.Where(c => c.Email == response.EmailUsuario);
 
                 if (!colaboradorQuery.Any())
                 {
@@ -319,7 +319,7 @@ namespace MatrizHabilidadeCore.Controllers
                 var turmaColaborador = new TurmaTreinamentoEspecificoColaborador()
                 {
                     IsAtivo = true,
-                    ColaboradorId = colaborador.UsuarioId,
+                    ColaboradorId = colaborador.Id,
                     TurmaTreinamentoEspecificoId = turma.Id,
                 };
 
@@ -365,7 +365,7 @@ namespace MatrizHabilidadeCore.Controllers
 
                 var notaTreinamento = new NotaTreinamento()
                 {
-                    ColaboradorId = colaborador.UsuarioId,
+                    ColaboradorId = colaborador.Id,
                     Nota = nota,
                     TurmaTreinamentoId = turma.Id,
                 };

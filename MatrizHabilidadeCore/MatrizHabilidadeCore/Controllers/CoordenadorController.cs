@@ -42,7 +42,7 @@ namespace MatrizHabilidadeCore.Controllers
             var chartBuilder = new ChartBuilderService(_db, _historicoCalculatorService);
             var historicoCalculator = new HistoricoCalculatorService(_db);
 
-            int ano = base.GetCurrentYear();
+            int ano = GetCurrentYear();
 
             if (ano == 0)
             {
@@ -64,7 +64,7 @@ namespace MatrizHabilidadeCore.Controllers
                 .Where(h => h.AreaId == _area.Id)
                 .Select(c => c.Coordenador)
                 .Distinct()
-                .OrderBy(c => c.Usuario.Nome)
+                .OrderBy(c => c.Nome)
                 .ToList();
 
             coordenadores.AddRange(_db.Coordenadores

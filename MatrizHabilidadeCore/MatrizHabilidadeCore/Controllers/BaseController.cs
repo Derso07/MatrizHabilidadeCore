@@ -1,5 +1,6 @@
 ﻿using MatrizHabilidadeCore.Services;
 using MatrizHabilidadeCore.Utility;
+using MatrizHabilidadeCore.ViewModel;
 using MatrizHabilidadeDatabase.Models;
 using MatrizHabilidadeDataBaseCore;
 using Microsoft.AspNetCore.Identity;
@@ -23,34 +24,25 @@ namespace MatrizHabilidadeCore.Controllers
             _cookieService = cookieService;
         }
 
-        private Usuario _currentUser;
-
-        public Usuario CurrentUser
-        {
-            get
-            {
-                if (_currentUser == null)
-                {
-                    var userName = User.FindFirstValue(Claims.UserId.Value);
-
-                    CurrentUser = _db.Usuarios
-                        .Where(u => u.Nome == userName)
-                        .FirstOrDefault();
-                }
-                return _currentUser;
-            }
-            set { _currentUser = value; }
-        }
+        public Colaborador CurrentColaborador { get; set; }
+        public Coordenador CurrentCoordenador { get; set; }
 
         private int? _currentYear;
         public async Task<int> SetCurrentYear(int year)
         {
+            dynamic claim;
             _currentYear = year;
             TempData[Claims.CurrentYear.Value] = year;
-            var claim = _db.Claims.Where(c => c.Id == _currentUser.Id && c.ClaimType == Claims.CurrentYear.Value).FirstOrDefault();
-            if (claim == null )
+            if (_currentColaborador != null)
             {
-                _db.Claims.Add(new MatrizHabilidadeDataBaseCore.Models.Claim() {
+                claim = _db.Claims.Where(c => c.Id == _currentColaborador.Id && c.ClaimType == Claims.CurrentYear.Value).FirstOrDefault();
+            }
+            claim = _db.Claims.Where(c => c.Id == _currentCoordenador.Id && c.ClaimType == Claims.CurrentYear.Value).FirstOrDefault();
+
+            if (claim == null)
+            {
+                _db.Claims.Add(new MatrizHabilidadeDataBaseCore.Models.Claim()
+                {
                     ClaimType = Claims.CurrentYear.Value,
                     ClaimValue = year.ToString()
                 });
@@ -67,9 +59,17 @@ namespace MatrizHabilidadeCore.Controllers
 
         public int GetCurrentYear()
         {
-            var year = _db.Claims.Where(y => y.Id == CurrentUser.Id && y.ClaimType == Claims.CurrentYear.Value).Select(y => y.ClaimValue).FirstOrDefault();
-            _currentYear = Convert.ToInt32(year);
-            return _currentYear.Value;
+            dynamic year;
+            if (_currentcolaborador != null)
+            {
+                year = _db.claims.where(y => y.id == _currentcolaborador.id && y.claimtype == claims.currentyear.value).select(y => y.claimvalue).firstordefault();
+            }
+            else
+            {
+                year = _db.claims.where(y => y.id == _currentcoordenador.id && y.claimtype == claims.currentyear.value).select(y => y.claimvalue).firstordefault();
+            }
+            _currentyear = convert.toint32(year);
+            return 0;
         }
 
         public async override Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

@@ -22,8 +22,9 @@ namespace MatrizHabilidadeCore.Controllers
         }
 
         [System.Web.Mvc.HttpPost()]
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Login(string returnUrl)
         {
+            return Redirect(returnUrl);
             var cookie = _cookieService.GetCookie<CookieViewModel>("GestaoConhecimentoNovelis");
             var user = _db.Usuarios.Where(x => x.Login == cookie.Usu_login).FirstOrDefault();
 #if DEBUG

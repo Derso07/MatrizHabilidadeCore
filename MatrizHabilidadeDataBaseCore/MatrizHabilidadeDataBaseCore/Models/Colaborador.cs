@@ -1,6 +1,6 @@
 ﻿using MatrizHabilidadeDatabase.Models;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MatrizHabilidadeDatabase.Models
@@ -8,8 +8,37 @@ namespace MatrizHabilidadeDatabase.Models
     [Table("Colaborador")]
     public class Colaborador
     {
+        public Colaborador() { }
 
         public int Id { get; set; }
+
+        public string Login { get; set; }
+
+        public string Nome { get; set; }
+
+        public string Email { get; set; }
+
+        public string Chapa { get; set; }
+
+        public string Funcao { get; set; }
+
+        public int Situacao { get; set; }
+
+        [NotMapped]
+        public bool IsHorista { get; set; }
+
+        [NotMapped]
+        public bool IsCoordenador { get; set; }
+
+        [NotMapped]
+        public bool IsCLT { get; set; }
+
+        [NotMapped]
+        public bool IsManutencao { get; set; }
+
+        public bool IsAtivo { get; set; }
+
+        public DateTime? DataAdmissao { get; set; }
 
         public int? UniorgId { get; set; }
 
@@ -33,5 +62,6 @@ namespace MatrizHabilidadeDatabase.Models
 
         public bool IsFacilitador { get; set; }
 
+        public NivelAcesso NivelAcesso { get; set; }
     }
 }

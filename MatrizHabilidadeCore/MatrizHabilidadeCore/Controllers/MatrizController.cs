@@ -164,7 +164,7 @@ namespace MatrizHabilidadeCore.Controllers
                         {
                             colaboradores = maquina.Uniorgs
                                 .SelectMany(u => u.Colaboradores)
-                                .Where(c => c.Usuario.IsAtivo)
+                                .Where(c => c.IsAtivo)
                                 .ToList();
                         }
                         else
@@ -177,9 +177,9 @@ namespace MatrizHabilidadeCore.Controllers
 
                                     if (_colaborador != null)
                                     {
-                                        if (_colaborador.Usuario.IsAtivo)
+                                        if (_colaborador.IsAtivo)
                                         {
-                                            result.FiltroColaboradores.Add(colaborador, $"{_colaborador.Usuario.Nome} - {_colaborador.Usuario.Email}");
+                                            result.FiltroColaboradores.Add(colaborador, $"{_colaborador.Nome} - {_colaborador.Email}");
 
                                             colaboradores.Add(_colaborador);
                                         }
@@ -188,13 +188,13 @@ namespace MatrizHabilidadeCore.Controllers
                             }
                         }
 
-                        foreach (var colaborador in colaboradores.OrderBy(c => c.Usuario.Nome))
+                        foreach (var colaborador in colaboradores.OrderBy(c => c.Nome))
                         {
                             var operador = new MatrizViewModel.Colaborador()
                             {
-                                Chapa = colaborador.Usuario.Chapa,
-                                Nome = colaborador.Usuario.Nome,
-                                Funcao = colaborador.Usuario.Funcao,
+                                Chapa = colaborador.Chapa,
+                                Nome = colaborador.Nome,
+                                Funcao = colaborador.Funcao,
                                 Maquina = maquina.Descricao,
                                 IsFacilitador = colaborador.IsFacilitador,
                             };
@@ -218,7 +218,7 @@ namespace MatrizHabilidadeCore.Controllers
                                 int treinamentoId = treinamentos[treinamentoIndex].Id;
 
                                 var notaQuery = _db.NotasTreinamentos
-                                    .Where(n => n.ColaboradorId == colaborador.Usuario.Id)
+                                    .Where(n => n.ColaboradorId == colaborador.Id)
                                     .Where(n => n.TurmaTreinamento.TreinamentoId == treinamentoId)
                                     .OrderByDescending(n => n.TurmaTreinamento.DataRealizacao)
                                     .OrderByDescending(n => n.TurmaTreinamento.DataLancamento)
@@ -300,13 +300,13 @@ namespace MatrizHabilidadeCore.Controllers
                                     int treinamentoId = treinamentosEspecificos[treinamentoIndex].Id;
 
                                     var auditoriaQuery = _db.Auditorias
-                                        .Where(a => a.ColaboradorId == colaborador.Usuario.Id)
+                                        .Where(a => a.ColaboradorId == colaborador.Id)
                                         .Where(a => a.TreinamentoEspecificoId == treinamentoId)
                                         .Where(a => a.IsAtivo)
                                         .OrderByDescending(a => a.DataLancamento);
 
                                     var metaQuery = _db.MetasTreinamentosEspecificos
-                                        .Where(m => m.ColaboradorId == colaborador.Usuario.Id)
+                                        .Where(m => m.ColaboradorId == colaborador.Id)
                                         .Where(m => m.TreinamentoEspecificoId == treinamentoId);
 
                                     if (metaQuery.Any())
@@ -384,7 +384,7 @@ namespace MatrizHabilidadeCore.Controllers
 
                                     var status = _db.TurmasTreinamentosEspecificos
                                         .Where(t => t.TreinamentoEspecificoId == treinamentoId)
-                                        .Where(t => t.TurmaColaboradores.Any(c => c.ColaboradorId == colaborador.Usuario.Id && c.IsAtivo))
+                                        .Where(t => t.TurmaColaboradores.Any(c => c.ColaboradorId == colaborador.Id && c.IsAtivo))
                                         .Any();
 
                                     if (!meta.HasValue || meta.Value <= 1)
@@ -501,7 +501,7 @@ namespace MatrizHabilidadeCore.Controllers
                             if (Math.Abs(customGapResult.Geral.Conhecimento - defaultGapResult.Geral.Conhecimento) > 0.5)
                             {
 #if (DEBUG)
-                                var oi = 0;
+                                Console.WriteLine("Error");
 #else
                                 Task.Run(()=> 
                                 {
@@ -515,7 +515,7 @@ namespace MatrizHabilidadeCore.Controllers
                             else if (Math.Abs(customGapResult.Geral.Treinamento - defaultGapResult.Geral.Treinamento) > 0.5)
                             {
 #if (DEBUG)
-                                var oi = 0;
+                                Console.WriteLine("Error");
 #else
                                 Task.Run(() =>
                                 {

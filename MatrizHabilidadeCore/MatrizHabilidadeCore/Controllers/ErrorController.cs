@@ -26,7 +26,14 @@ namespace MatrizHabilidadeCore.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                userId = CurrentUser.Id;
+                if (CurrentColaborador != null)
+                {
+                    userId = CurrentColaborador.Id;
+                }
+                else
+                {
+                    userId = CurrentCoordenador.Id;
+                }
             }
 
             string origin = "";
@@ -84,7 +91,14 @@ namespace MatrizHabilidadeCore.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                userId = CurrentUser.Id;
+                if (CurrentColaborador != null)
+                {
+                    userId = CurrentColaborador.Id;
+                }
+                else
+                {
+                    userId = CurrentCoordenador.Id;
+                }
             }
 
             string message = "Algo deu errado.";
@@ -211,14 +225,14 @@ namespace MatrizHabilidadeCore.Controllers
         {
 
                 int treinamentoId = 3;
-                var colaborador = _db.Colaboradores.Where(c => c.Usuario.Login == login).FirstOrDefault();
+                var colaborador = _db.Colaboradores.Where(c => c.Login == login).FirstOrDefault();
 
                 if (colaborador != null)
                 {
                     var hasTreinamento = _db.TurmasTreinamentos
                         .Where(t => t.TreinamentoId == treinamentoId)
                         .SelectMany(t => t.Notas)
-                        .Where(n => n.ColaboradorId == colaborador.Usuario.Id)
+                        .Where(n => n.ColaboradorId == colaborador.Id)
                         .Where(n => n.Nota >= nota)
                         .Any();
 

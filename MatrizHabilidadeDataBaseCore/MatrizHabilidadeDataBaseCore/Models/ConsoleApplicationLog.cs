@@ -14,6 +14,8 @@ namespace MatrizHabilidadeDatabase.Models
 
         public int? ErrorId { get; set; }
 
+        public string Version { get; set; }
+
         public virtual Error Error { get; set; }
     }
 }

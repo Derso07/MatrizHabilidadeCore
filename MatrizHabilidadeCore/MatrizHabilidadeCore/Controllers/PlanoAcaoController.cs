@@ -52,8 +52,8 @@ namespace MatrizHabilidadeCore.Controllers
 
             Usuario usuario = new Usuario();
 
-            var coordenadorQuery = _db.Coordenadores.Where(u => u.Usuario.Login.ToLower() == CurrentUser.Email.ToLower());
-            var colaboradorQuery = _db.Colaboradores.Where(u => u.Usuario.Login.ToLower() == CurrentUser.Email.ToLower());
+            var coordenadorQuery = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentUser.Email.ToLower());
+            var colaboradorQuery = _db.Colaboradores.Where(u => u.Login.ToLower() == CurrentUser.Email.ToLower());
 
             if (coordenadorQuery.Any())
             {
@@ -241,12 +241,12 @@ namespace MatrizHabilidadeCore.Controllers
                 if (acoes[x].ColaboradorResponsavel != null)
                 {
                     isResponsavel = acoes[x].ColaboradorResponsavelId == usuario.Id;
-                    nomeResponsavel = acoes[x].ColaboradorResponsavel.Usuario.Nome;
+                    nomeResponsavel = acoes[x].ColaboradorResponsavel.Nome;
                 }
                 else if (acoes[x].CoordenadorResponsavel != null)
                 {
                     isResponsavel = acoes[x].CoordenadorResponsavelId == usuario.Id;
-                    nomeResponsavel = acoes[x].CoordenadorResponsavel.Usuario.Nome;
+                    nomeResponsavel = acoes[x].CoordenadorResponsavel.Nome;
                 }
 
                 var statusText = "";
@@ -280,7 +280,7 @@ namespace MatrizHabilidadeCore.Controllers
                     Key = Encrypting.Encrypt(acoes[x].Id.ToString()),
                     Area = acoes[x].Colaborador.Uniorg.Coordenador.Area.Alias,
                     Maquina = acoes[x].Colaborador.Uniorg.Maquinas.FirstOrDefault().Descricao,
-                    Coordenador = acoes[x].Colaborador.Uniorg.Coordenador.Usuario.Nome,
+                    Coordenador = acoes[x].Colaborador.Uniorg.Coordenador.Nome,
                     Index = x + 1,
                     Acao = acoes[x].Acao,
                     Responsavel = nomeResponsavel,

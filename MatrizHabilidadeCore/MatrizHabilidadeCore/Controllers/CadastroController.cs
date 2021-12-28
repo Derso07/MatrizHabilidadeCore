@@ -475,7 +475,7 @@ namespace MatrizHabilidadeCore.Controllers
 
                 if (_maquina.HasError)
                 {
-                    var coordenadores = string.Join(", ", _maquina.Uniorgs.Select(u => u.Coordenador.Usuario.Nome));
+                    var coordenadores = string.Join(", ", _maquina.Uniorgs.Select(u => u.Coordenador.Nome));
 
                     model.Alerta = new AlertaViewModel($"A Máquina selecionada contém mais de um Coordenador ({coordenadores})");
                 }
@@ -521,11 +521,11 @@ namespace MatrizHabilidadeCore.Controllers
 
                     model.FiltroAreaMaquina.Value.Options.Add(key, _area.Alias);
 
-                    foreach (var _coordenador in _area.Coordenadores.OrderBy(c => c.Usuario.Nome))
+                    foreach (var _coordenador in _area.Coordenadores.OrderBy(c => c.Nome))
                     {
-                        var coordenadorKey = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                        var coordenadorKey = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                        model.FiltroCoordenadorMaquina.Value.Options.Add(coordenadorKey, _coordenador.Usuario.Nome);
+                        model.FiltroCoordenadorMaquina.Value.Options.Add(coordenadorKey, _coordenador.Nome);
 
                         foreach (var uniorg in _coordenador.Uniorgs.Where(u => u.Maquinas.Count == 0).OrderBy(u => u.DescricaoUniorg).ToList())
                         {
@@ -572,11 +572,11 @@ namespace MatrizHabilidadeCore.Controllers
                 model.UniorgMaquina = new SelectViewModel();
                 model.FiltroCoordenadorMaquina = new SelectViewModel("Todos os Coordenadores", true);
 
-                foreach (var _coordenador in _area.Coordenadores.OrderBy(c => c.Usuario.Nome).ToList())
+                foreach (var _coordenador in _area.Coordenadores.OrderBy(c => c.Nome).ToList())
                 {
-                    var coordenadorKey = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                    var coordenadorKey = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                    model.FiltroCoordenadorMaquina.Value.Options.Add(coordenadorKey, _coordenador.Usuario.Nome);
+                    model.FiltroCoordenadorMaquina.Value.Options.Add(coordenadorKey, _coordenador.Nome);
 
                     foreach (var uniorg in _coordenador.Uniorgs.Where(u => u.Maquinas.Count == 0).OrderBy(u => u.DescricaoUniorg).ToList())
                     {
@@ -640,11 +640,11 @@ namespace MatrizHabilidadeCore.Controllers
                     model.FiltroAreaMaquina.Value.Options.Add(key, _area.Alias);
                 }
 
-                foreach (var _coordenador in _db.Coordenadores.OrderBy(c => c.Usuario.Nome).ToList())
+                foreach (var _coordenador in _db.Coordenadores.OrderBy(c => c.Nome).ToList())
                 {
-                    var key = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                    var key = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                    model.FiltroCoordenadorMaquina.Value.Options.Add(key, _coordenador.Usuario.Nome) ;
+                    model.FiltroCoordenadorMaquina.Value.Options.Add(key, _coordenador.Nome) ;
                 }
             }
 
@@ -700,13 +700,13 @@ namespace MatrizHabilidadeCore.Controllers
                     var coordenadores = _area.Coordenadores
                         .Where(c => c.Uniorgs.Any())
                         .Where(c => c.Uniorgs.SelectMany(u => u.Maquinas).Any())
-                        .OrderBy(c => c.Usuario.Nome);
+                        .OrderBy(c => c.Nome);
 
                     foreach (var _coordenador in coordenadores)
                     {
-                        var coordenadorKey = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                        var coordenadorKey = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                        model.FiltroCoordenadorTabelaMaquina.Value.Options.Add(coordenadorKey, _coordenador.Usuario.Nome);
+                        model.FiltroCoordenadorTabelaMaquina.Value.Options.Add(coordenadorKey, _coordenador.Nome);
                     }
                 }
 
@@ -753,13 +753,13 @@ namespace MatrizHabilidadeCore.Controllers
                 var coordenadores = _area.Coordenadores
                     .Where(c => c.Uniorgs.Any())
                     .Where(c => c.Uniorgs.SelectMany(u => u.Maquinas).Any())
-                    .OrderBy(c => c.Usuario.Nome);
+                    .OrderBy(c => c.Nome);
 
                 foreach (var _coordenador in coordenadores)
                 {
-                    var coordenadorKey = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                    var coordenadorKey = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                    model.FiltroCoordenadorTabelaMaquina.Value.Options.Add(coordenadorKey, _coordenador.Usuario.Nome);
+                    model.FiltroCoordenadorTabelaMaquina.Value.Options.Add(coordenadorKey, _coordenador.Nome);
                 }
 
                 if (coordenadorId.HasValue)
@@ -803,13 +803,13 @@ namespace MatrizHabilidadeCore.Controllers
                 var coordenadores = _db.Coordenadores
                     .Where(c => c.Uniorgs.Any())
                     .Where(c => c.Uniorgs.SelectMany(u => u.Maquinas).Any())
-                    .OrderBy(c => c.Usuario.Nome);
+                    .OrderBy(c => c.Nome);
 
                 foreach (var _coordenador in coordenadores)
                 {
-                    var key = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                    var key = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                    model.FiltroCoordenadorTabelaMaquina.Value.Options.Add(key, _coordenador.Usuario.Nome);
+                    model.FiltroCoordenadorTabelaMaquina.Value.Options.Add(key, _coordenador.Nome);
                 }
             }
 
@@ -901,28 +901,28 @@ namespace MatrizHabilidadeCore.Controllers
             }
 
             var coordenadores = _db.Coordenadores
-                .OrderBy(c => c.Usuario.Nome)
+                .OrderBy(c => c.Nome)
                 .ToList();
 
             foreach (var _coordenador in coordenadores)
             {
-                var key = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                model.FiltroCoordenadorMaquina.Value.Options.Add(key, _coordenador.Usuario.Nome);
+                model.FiltroCoordenadorMaquina.Value.Options.Add(key, _coordenador.Nome);
             }
 
             coordenadores = coordenadores
                 .Where(c => c.Uniorgs.Any())
                 .Where(c => c.Uniorgs.SelectMany(u => u.Maquinas).Any())
                 .Where(c => c.Uniorgs.SelectMany(m => m.Colaboradores).Any())
-                .OrderBy(c => c.Usuario.Nome)
+                .OrderBy(c => c.Nome)
                 .ToList();
 
             foreach (var _coordenador in coordenadores)
             {
-                var key = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                model.FiltroCoordenadorTabelaMaquina.Value.Options.Add(key, _coordenador.Usuario.Nome);
+                model.FiltroCoordenadorTabelaMaquina.Value.Options.Add(key, _coordenador.Nome);
             }
 
             foreach (var uniorg in _db.Uniorgs.Where(u => u.Maquinas.Count == 0).OrderBy(c => c.DescricaoUniorg).ToList())
@@ -984,7 +984,7 @@ namespace MatrizHabilidadeCore.Controllers
 
             if (coordenadorId.HasValue)
             {
-                maquinas = maquinas.Where(m => m.Uniorgs.Any(u => u.Coordenador.Usuario.Id == coordenadorId.Value)).ToList();
+                maquinas = maquinas.Where(m => m.Uniorgs.Any(u => u.Coordenador.Id == coordenadorId.Value)).ToList();
             }
             else if (areaId.HasValue)
             {
@@ -1007,7 +1007,7 @@ namespace MatrizHabilidadeCore.Controllers
                 {
                     unidades = maquina.Area.Planta.Descricao;
                     areas = maquina.Area.Descricao;
-                    coordenadores = string.Join(", ", maquina.Uniorgs.Select(u => u.Coordenador.Usuario.Nome).Distinct());
+                    coordenadores = string.Join(", ", maquina.Uniorgs.Select(u => u.Coordenador.Nome).Distinct());
                     uniorgNumeros = string.Join(", ", maquina.Uniorgs.Select(u => u.UniorgNumero));
                     uniorgDescricoes = string.Join(", ", maquina.Uniorgs.Select(u => u.DescricaoUniorg));
                 }
@@ -2720,7 +2720,7 @@ namespace MatrizHabilidadeCore.Controllers
             }
 
             areasQuery = areasQuery.OrderBy(a => a.Alias);
-            coordenadoresQuery = coordenadoresQuery.OrderBy(c => c.Usuario.Nome);
+            coordenadoresQuery = coordenadoresQuery.OrderBy(c => c.Nome);
             maquinasQuery = maquinasQuery.OrderBy(c => c.Descricao);
 
             var areas = areasQuery.ToList();
@@ -2741,14 +2741,14 @@ namespace MatrizHabilidadeCore.Controllers
 
             for (var i = 0; i < coordenadores.Count; i++)
             {
-                var key = Encrypting.Encrypt(coordenadores[i].Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(coordenadores[i].Id.ToString());
 
-                if (coordenadores[i].Usuario.Id == coordenadorId)
+                if (coordenadores[i].Id == coordenadorId)
                 {
                     model.FiltroCoordenadorFacilitador.Value.SelectedIndex = i;
                 }
 
-                model.FiltroCoordenadorFacilitador.Value.Options.Add(key, coordenadores[i].Usuario.Nome);
+                model.FiltroCoordenadorFacilitador.Value.Options.Add(key, coordenadores[i].Nome);
             }
 
             for (var i = 0; i < maquinas.Count; i++)
@@ -2815,14 +2815,14 @@ namespace MatrizHabilidadeCore.Controllers
                 .Where(c => c.Uniorgs.Any())
                 .Where(c => c.Uniorgs.SelectMany(u => u.Maquinas).Any())
                 .Where(c => c.Uniorgs.SelectMany(m => m.Colaboradores).Any())
-                .OrderBy(c => c.Usuario.Nome)
+                .OrderBy(c => c.Nome)
                 .ToList();
 
             foreach (var _coordenador in coordenadores)
             {
-                var key = Encrypting.Encrypt(_coordenador.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(_coordenador.Id.ToString());
 
-                model.FiltroCoordenadorFacilitador.Value.Options.Add(key, _coordenador.Usuario.Nome);
+                model.FiltroCoordenadorFacilitador.Value.Options.Add(key, _coordenador.Nome);
             }
 
             foreach (var _maquina in _db.Maquinas.OrderBy(m => m.Descricao).Where(i => i.IsAtivo).ToList())
@@ -2842,7 +2842,7 @@ namespace MatrizHabilidadeCore.Controllers
             var colaboradores = _db.Colaboradores
                 .Where(c => c.Uniorg.Maquinas.Any())
                 .Where(c => c.Uniorg.Maquinas.Where(m => m.IsAtivo).Any())
-                .Where(c => c.Usuario.IsAtivo);
+                .Where(c => c.IsAtivo);
 
             if (int.TryParse(Encrypting.Decrypt(unidade), out int plantaId))
             {
@@ -2866,7 +2866,7 @@ namespace MatrizHabilidadeCore.Controllers
 
             if (!string.IsNullOrEmpty(nome))
             {
-                colaboradores = colaboradores.Where(c => c.Usuario.Nome.Contains(nome) || c.Usuario.Chapa.Contains(nome));
+                colaboradores = colaboradores.Where(c => c.Nome.Contains(nome) || c.Chapa.Contains(nome));
             }
 
             model.Value.Rows.Add(new TableViewModel.Row() { Values = new string[] { "Unidade", "Área", "Responsável", "Máquina", "Chapa", "Nome", "Facilitador" } });
@@ -2875,9 +2875,9 @@ namespace MatrizHabilidadeCore.Controllers
             {
                 var unidades = colaborador.Uniorg.Coordenador.Area.Planta.Descricao;
                 var areas = colaborador.Uniorg.Coordenador.Area.Alias;
-                var coordenadores = colaborador.Uniorg.Coordenador.Usuario.Nome;
+                var coordenadores = colaborador.Uniorg.Coordenador.Nome;
 
-                var key = Encrypting.Encrypt(colaborador.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(colaborador.Id.ToString());
 
                 model.Value.Rows.Add(new TableViewModel.Row()
                 {
@@ -2888,8 +2888,8 @@ namespace MatrizHabilidadeCore.Controllers
                         areas,
                         coordenadores,
                         colaborador.Uniorg.Maquinas.FirstOrDefault().Descricao,
-                        colaborador.Usuario.Chapa,
-                        colaborador.Usuario.Nome,
+                        colaborador.Chapa,
+                        colaborador.Nome,
                         $@"
                             <span style=""display: none"">{(colaborador.IsFacilitador ? "Sim" : "Não")}</span>
                             <div>
@@ -3184,7 +3184,7 @@ namespace MatrizHabilidadeCore.Controllers
             }
 
             maquinasQuery = maquinasQuery.OrderBy(m => m.Descricao);
-            coordenadoresQuery = coordenadoresQuery.OrderBy(m => m.Usuario.Nome);
+            coordenadoresQuery = coordenadoresQuery.OrderBy(m => m.Nome);
 
             foreach (var maquina in maquinasQuery.Where(i => i.IsAtivo).ToList())
             {
@@ -3195,9 +3195,9 @@ namespace MatrizHabilidadeCore.Controllers
 
             foreach (var coordenador in coordenadoresQuery.ToList())
             {
-                var key = Encrypting.Encrypt(coordenador.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(coordenador.Id.ToString());
 
-                model.CoordenadorCoordenador.Value.Options.Add(key, coordenador.Usuario.Nome);
+                model.CoordenadorCoordenador.Value.Options.Add(key, coordenador.Nome);
             }
 
             model.CoordenadorCoordenador.Value.Options = model.CoordenadorCoordenador.Value.Options.OrderBy(o => o.Value).ToDictionary(o => o.Key, o => o.Value);
@@ -3260,11 +3260,11 @@ namespace MatrizHabilidadeCore.Controllers
                 model.MaquinaCoordenador.Value.Options.Add(key, maquina.Descricao);
             }
 
-            foreach (var coordenador in _db.Coordenadores.Where(c => c.Usuario.IsAtivo).OrderBy(c => c.Usuario.Nome).ToList())
+            foreach (var coordenador in _db.Coordenadores.Where(c => c.IsAtivo).OrderBy(c => c.Nome).ToList())
             {
-                var key = Encrypting.Encrypt(coordenador.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(coordenador.Id.ToString());
 
-                model.CoordenadorCoordenador.Value.Options.Add(key, coordenador.Usuario.Nome);
+                model.CoordenadorCoordenador.Value.Options.Add(key, coordenador.Nome);
             }
 
             return model;
@@ -3319,7 +3319,7 @@ namespace MatrizHabilidadeCore.Controllers
                     Values = new string[]
                     {
                         cadastroCoordenador.Maquina.Descricao,
-                        cadastroCoordenador.Coordenador.Usuario.Nome,
+                        cadastroCoordenador.Coordenador.Nome,
                     },
                 });
             }

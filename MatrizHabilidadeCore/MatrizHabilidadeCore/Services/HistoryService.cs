@@ -105,7 +105,7 @@ namespace MatrizHabilidadeDatabase.Services
                     .Where(h => h.DataCorrespondente.Year == date.Year)
                     .Where(h => h.DataCorrespondente.Month == date.Month)
                     .Where(h => h.Tipo == tipo)
-                    .Where(h => h.CoordenadorId == coordenador.Usuario.Id);
+                    .Where(h => h.CoordenadorId == coordenador.Id);
 
                 if (hasHistoricoCoordenador.Any())
                 {
@@ -114,7 +114,7 @@ namespace MatrizHabilidadeDatabase.Services
 
                 _db.HistoricoCoordenadores.Add(new HistoricoCoordenador()
                 {
-                    CoordenadorId = coordenador.Usuario.Id,
+                    CoordenadorId = coordenador.Id,
                     DataCorrespondente = date,
                     Tipo = tipo,
                     Valor = funcaoCoordenador(coordenador, date.Year, date.Month),

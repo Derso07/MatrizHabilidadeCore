@@ -112,12 +112,12 @@ namespace MatrizHabilidade.Services
                         }
                         else if (type == Coluna.Chapa)
                         {
-                            colaborador.Usuario.Chapa = value;
+                            colaborador.Chapa = value;
                             columnsFound++;
                         }
                         else if (type == Coluna.Nome)
                         {
-                            colaborador.Usuario.Nome = value;
+                            colaborador.Nome = value;
                             columnsFound++;
                         }
                         else if (type == Coluna.Padrao)
@@ -185,7 +185,7 @@ namespace MatrizHabilidade.Services
                                 if (maquina != null)
                                 {
                                     #region Usuario
-                                    var usuarioQuery = _db.Colaboradores.Where(c => c.Usuario.Chapa == colaborador.Usuario.Chapa);
+                                    var usuarioQuery = _db.Colaboradores.Where(c => c.Chapa == colaborador.Chapa);
 
                                     if (usuarioQuery.Any())
                                     {
@@ -225,7 +225,7 @@ namespace MatrizHabilidade.Services
 
                                             _db.MetasTreinamentosEspecificos.Add(new MetaTreinamentoEspecifico()
                                             {
-                                                ColaboradorId = colaborador.Usuario.Id,
+                                                ColaboradorId = colaborador.Id,
                                                 TreinamentoEspecificoId = treinamentoEspecifico.Id,
                                                 DataLancamento = DateTime.Now,
                                                 Meta = _meta,

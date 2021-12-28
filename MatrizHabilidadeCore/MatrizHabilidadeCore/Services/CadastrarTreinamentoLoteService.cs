@@ -157,7 +157,7 @@ namespace MatrizHabilidade.Services
 
                         if (type == Coluna.IdAlternativo)
                         {
-                            colaborador.Usuario.Chapa = value;
+                            colaborador.Chapa = value;
                             columnsFound++;
                         }
                         else if (type == Coluna.TituloTreinamento)
@@ -221,7 +221,7 @@ namespace MatrizHabilidade.Services
 
                         if (tipoTreinamento != TipoTreinamento.None)
                         {
-                            var colaboradorQuery = _db.Colaboradores.Where(c => c.Usuario.Chapa == colaborador.Usuario.Chapa);
+                            var colaboradorQuery = _db.Colaboradores.Where(c => c.Chapa == colaborador.Chapa);
 
                             if (colaboradorQuery.Any())
                             {
@@ -263,7 +263,7 @@ namespace MatrizHabilidade.Services
                                         _db.TurmasTreinamentosEspecificosColaboradores.Add(new TurmaTreinamentoEspecificoColaborador()
                                         {
                                             IsAtivo = true,
-                                            ColaboradorId = colaborador.Usuario.Id,
+                                            ColaboradorId = colaborador.Id,
                                             TurmaTreinamentoEspecificoId = turma.Id,
                                         });
                                         _db.SaveChanges();
@@ -306,7 +306,7 @@ namespace MatrizHabilidade.Services
                                         {
                                             Nota = pontuacao,
                                             TurmaTreinamentoId = turma.Id,
-                                            ColaboradorId = colaborador.Usuario.Id,
+                                            ColaboradorId = colaborador.Id,
                                         });
                                         _db.SaveChanges();
                                     }

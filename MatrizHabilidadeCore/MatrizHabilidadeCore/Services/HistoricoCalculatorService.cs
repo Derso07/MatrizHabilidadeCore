@@ -172,7 +172,7 @@ namespace MatrizHabilidadeDatabase.Services
         {
             return _db.Colaboradores
                 .Where(c => c.IsFacilitador)
-                .Where(c => c.Uniorg.CoordenadorId == coordenador.Usuario.Id)
+                .Where(c => c.Uniorg.CoordenadorId == coordenador.Id)
                 .Count();
         }
         #endregion

@@ -32,11 +32,11 @@ namespace MatrizHabilidade.Services
 
             for (var x = 0; x < coordenadores.Count; x++)
             {
-                int coordenadorId = coordenadores[x].Usuario.Id;
+                int coordenadorId = coordenadores[x].Id;
 
                 var serie = new Grafico.Serie
                 {
-                    Name = coordenadores[x].Usuario.Nome,
+                    Name = coordenadores[x].Nome,
                 };
 
                 int month = 4;

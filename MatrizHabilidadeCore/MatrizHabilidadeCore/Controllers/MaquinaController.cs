@@ -144,7 +144,7 @@ namespace MatrizHabilidadeCore.Controllers
             model.Instrutores = new Grafico("GraficoInstrutores")
             {
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
-                Series = chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Instrutores,null),
+                Series = chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Instrutores, null),
             };
 
             model.InstrutoresExportacao = new Grafico("GraficoInstrutoresExportacao")

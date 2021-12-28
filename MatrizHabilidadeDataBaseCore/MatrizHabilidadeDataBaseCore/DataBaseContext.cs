@@ -1,5 +1,5 @@
 ﻿using MatrizHabilidadeDatabase.Models;
-using MatrizHabilidadeDataBaseCore.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MatrizHabilidadeDataBaseCore
 {
-    public class DataBaseContext : DbContext
+    public class DataBaseContext : IdentityDbContext<Usuario>
     {
         public DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options)
         {
@@ -25,8 +25,6 @@ namespace MatrizHabilidadeDataBaseCore
         public DbSet<Categoria> Categorias { get; set; }
 
         public DbSet<CadastroCoordenador> CadastroCoordenadores { get; set; }
-
-        public DbSet<Claim> Claims { get; set; }
 
         public DbSet<ConfiguracaoIntegracaoTreinamento> Integracoes { get; set; }
 
