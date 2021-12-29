@@ -72,6 +72,8 @@ namespace MatrizHabilidadeDataBaseCore
 
         public DbSet<TurmaTreinamentoEspecifico> TurmasTreinamentosEspecificos { get; set; }
 
+        public DbSet<Usuario> Usuarios { get; set; }
+
         public DbSet<TurmaTreinamentoEspecificoColaborador> TurmasTreinamentosEspecificosColaboradores { get; set; }
 
         public DbSet<Uniorg> Uniorgs { get; set; }

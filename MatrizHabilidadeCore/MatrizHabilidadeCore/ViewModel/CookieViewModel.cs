@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MatrizHabilidadeDatabase.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace MatrizHabilidadeCore.ViewModel
 
         public string Usu_nome { get; set; }
 
+        public string AnoSelecionado { get; set; }
+
         public string Equipes { get; set; }
 
         public bool IsEscola { get; set; }
@@ -21,7 +24,7 @@ namespace MatrizHabilidadeCore.ViewModel
 
         public bool Usu_mudar_senha { get; set; }
 
-        public int Usu_acesso { get; set; }
+        public NivelAcesso Usu_acesso { get; set; }
 
         public int Usu_eqp_id { get; set; }
 

@@ -15,9 +15,18 @@ using System.Threading.Tasks;
 
 namespace MatrizHabilidadeCore.Controllers
 {
-    public class ErrorController : BaseController
+    public class ErrorController : Controller
     {
-        public ErrorController(DataBaseContext db, CookieService cookieService) : base(db, cookieService) { }
+        private readonly DataBaseContext _db;
+        private readonly CookieService _cookieService;
+        private readonly UserManager<Usuario> _userManager;
+
+        public ErrorController(DataBaseContext db, CookieService cookieService, UserManager<Usuario> userManager)
+        {
+            _db = db;
+            _cookieService = cookieService;
+            _userManager = userManager;
+        }
 
         public IActionResult Index()
         {
@@ -26,14 +35,8 @@ namespace MatrizHabilidadeCore.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
-                if (CurrentColaborador != null)
-                {
-                    userId = CurrentColaborador.Id;
-                }
-                else
-                {
-                    userId = CurrentCoordenador.Id;
-                }
+                userId = CurrentUser.Id;
+
             }
 
             string origin = "";
@@ -87,18 +90,11 @@ namespace MatrizHabilidadeCore.Controllers
 
         public IActionResult Status(string origin, int errorCode)
         {
-            int? userId = null;
+            string? userId = null;
 
             if (User.Identity.IsAuthenticated)
             {
-                if (CurrentColaborador != null)
-                {
-                    userId = CurrentColaborador.Id;
-                }
-                else
-                {
-                    userId = CurrentCoordenador.Id;
-                }
+                userId = CurrentUser.Id;
             }
 
             string message = "Algo deu errado.";
@@ -113,7 +109,7 @@ namespace MatrizHabilidadeCore.Controllers
                 _db.Erros.Add(new Error()
                 {
                     InnerExceptionType = $"{{ ErrorCode: {errorCode}, Origin: {origin} }}",
-                    Id = (int)userId,
+                    UserId = userId,
                     Data = DateTime.Now,
                 });
                 _db.SaveChanges();
@@ -155,64 +151,64 @@ namespace MatrizHabilidadeCore.Controllers
 
             int maquinaId = 10;
 
-                var transfer = new Dictionary<int, int>()
+            var transfer = new Dictionary<int, int>()
                 {
                     { 31, 157 },
                 };
 
-                foreach (var turma in _db.TurmasTreinamentosEspecificos.Where(t => t.TreinamentoEspecificoId == 31).ToList())
+            foreach (var turma in _db.TurmasTreinamentosEspecificos.Where(t => t.TreinamentoEspecificoId == 31).ToList())
+            {
+                var newTreinamentoId = 157;
+
+                TurmaTreinamentoEspecifico newTurma = _db.TurmasTreinamentosEspecificos
+                    .Where(t => t.TreinamentoEspecificoId == newTreinamentoId)
+                    .Where(t => t.DataLancamento == turma.DataLancamento)
+                    .Where(t => t.DataRealizacao == turma.DataRealizacao)
+                    .Where(t => t.NumeroLocalizador == turma.NumeroLocalizador)
+                    .FirstOrDefault();
+
+                if (newTurma == null)
                 {
-                    var newTreinamentoId = 157;
-
-                    TurmaTreinamentoEspecifico newTurma = _db.TurmasTreinamentosEspecificos
-                        .Where(t => t.TreinamentoEspecificoId == newTreinamentoId)
-                        .Where(t => t.DataLancamento == turma.DataLancamento)
-                        .Where(t => t.DataRealizacao == turma.DataRealizacao)
-                        .Where(t => t.NumeroLocalizador == turma.NumeroLocalizador)
-                        .FirstOrDefault();
-
-                    if (newTurma == null)
+                    newTurma = new TurmaTreinamentoEspecifico()
                     {
-                        newTurma = new TurmaTreinamentoEspecifico()
-                        {
-                            TreinamentoEspecificoId = newTreinamentoId,
-                            DataLancamento = turma.DataLancamento,
-                            DataRealizacao = turma.DataRealizacao,
-                            NumeroLocalizador = turma.NumeroLocalizador,
-                        };
+                        TreinamentoEspecificoId = newTreinamentoId,
+                        DataLancamento = turma.DataLancamento,
+                        DataRealizacao = turma.DataRealizacao,
+                        NumeroLocalizador = turma.NumeroLocalizador,
+                    };
 
-                        _db.TurmasTreinamentosEspecificos.Add(newTurma);
+                    _db.TurmasTreinamentosEspecificos.Add(newTurma);
+                    _db.SaveChanges();
+                }
+
+                var turmaColaboradores = turma.TurmaColaboradores
+                    .Where(c => c.Colaborador != null)
+                    .Where(c => c.Colaborador.Uniorg != null)
+                    .Where(c => c.Colaborador.Uniorg.Maquinas.Any(m => m.Id == maquinaId))
+                    .ToList();
+
+                foreach (var colaborador in turmaColaboradores)
+                {
+                    //db.TurmasTreinamentosEspecificosColaboradores.Remove(colaborador);
+                    //db.SaveChanges();
+
+                    var query = _db.TurmasTreinamentosEspecificosColaboradores
+                        .Where(t => t.IsAtivo)
+                        .Where(t => t.ColaboradorId == colaborador.ColaboradorId)
+                        .Where(t => t.TurmaTreinamentoEspecificoId == newTurma.Id);
+
+                    if (!query.Any())
+                    {
+                        _db.TurmasTreinamentosEspecificosColaboradores.Add(new TurmaTreinamentoEspecificoColaborador()
+                        {
+                            IsAtivo = true,
+                            ColaboradorId = colaborador.ColaboradorId,
+                            TurmaTreinamentoEspecificoId = newTurma.Id,
+                        });
                         _db.SaveChanges();
                     }
-
-                    var turmaColaboradores = turma.TurmaColaboradores
-                        .Where(c => c.Colaborador != null)
-                        .Where(c => c.Colaborador.Uniorg != null)
-                        .Where(c => c.Colaborador.Uniorg.Maquinas.Any(m => m.Id == maquinaId))
-                        .ToList();
-
-                    foreach (var colaborador in turmaColaboradores)
-                    {
-                        //db.TurmasTreinamentosEspecificosColaboradores.Remove(colaborador);
-                        //db.SaveChanges();
-
-                        var query = _db.TurmasTreinamentosEspecificosColaboradores
-                            .Where(t => t.IsAtivo)
-                            .Where(t => t.ColaboradorId == colaborador.ColaboradorId)
-                            .Where(t => t.TurmaTreinamentoEspecificoId == newTurma.Id);
-
-                        if (!query.Any())
-                        {
-                            _db.TurmasTreinamentosEspecificosColaboradores.Add(new TurmaTreinamentoEspecificoColaborador()
-                            {
-                                IsAtivo = true,
-                                ColaboradorId = colaborador.ColaboradorId,
-                                TurmaTreinamentoEspecificoId = newTurma.Id,
-                            });
-                            _db.SaveChanges();
-                        }
-                    }
                 }
+            }
             return Content("Ok");
         }
 
@@ -220,24 +216,24 @@ namespace MatrizHabilidadeCore.Controllers
         {
             return RedirectToAction("Index", "Home");
         }
-        
+
         public ActionResult UsuarioHasTreinamento(string login, int nota)
         {
 
-                int treinamentoId = 3;
-                var colaborador = _db.Colaboradores.Where(c => c.Login == login).FirstOrDefault();
+            int treinamentoId = 3;
+            var colaborador = _db.Colaboradores.Where(c => c.Login == login).FirstOrDefault();
 
-                if (colaborador != null)
-                {
-                    var hasTreinamento = _db.TurmasTreinamentos
-                        .Where(t => t.TreinamentoId == treinamentoId)
-                        .SelectMany(t => t.Notas)
-                        .Where(n => n.ColaboradorId == colaborador.Id)
-                        .Where(n => n.Nota >= nota)
-                        .Any();
+            if (colaborador != null)
+            {
+                var hasTreinamento = _db.TurmasTreinamentos
+                    .Where(t => t.TreinamentoId == treinamentoId)
+                    .SelectMany(t => t.Notas)
+                    .Where(n => n.ColaboradorId == colaborador.Id)
+                    .Where(n => n.Nota >= nota)
+                    .Any();
 
-                    return Content(hasTreinamento.ToString());
-                }
+                return Content(hasTreinamento.ToString());
+            }
             return Content("");
         }
 

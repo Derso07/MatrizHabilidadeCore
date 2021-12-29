@@ -91,5 +91,6 @@ namespace MatrizHabilidadeDatabase.Models
         public bool IsAtivo { get; set; }
 
         public DateTime? DataAdmissao { get; set; }
+
     }
 }

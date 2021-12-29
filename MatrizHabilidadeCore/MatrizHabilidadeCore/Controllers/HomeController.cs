@@ -14,13 +14,15 @@ using MatrizHabilidadeCore.Utility;
 using Microsoft.AspNetCore.Identity;
 using MatrizHabilidadeCore.Services;
 using MatrizHabilidade.Services;
+using MatrizHabilidadeCore.ViewModel;
+using System.Net;
 
 namespace MatrizHabilidadeCore.Controllers
 {
     public class HomeController : BaseController
     {
 
-        public HomeController(DataBaseContext _db, CookieService _cookieService) : base(_db, _cookieService)
+        public HomeController(DataBaseContext _db, CookieService _cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, _cookieService, _userManager, _signInManager)
         {
         }
 
@@ -31,6 +33,7 @@ namespace MatrizHabilidadeCore.Controllers
 
         public async Task<IActionResult> Index()
         {
+
             var model = new Dictionary<string, string>();
             
             foreach (var planta in _db.Plantas.Where(p => p.IsAtivo).ToList())
@@ -50,7 +53,7 @@ namespace MatrizHabilidadeCore.Controllers
                 }
             }
 
-            if (Request.Browser.IsMobileDevice)
+            if (Request.IsMobileDevice())
             {
                 return RedirectToAction("Index", "Formulario");
             }
@@ -73,11 +76,7 @@ namespace MatrizHabilidadeCore.Controllers
                 redirectUri = returnUrl;
             }
 
-            var cookie = Util.Cookie.Get();
-
-            cookie.AnoSelecionado = ano;
-
-            Util.Cookie.Set(cookie);
+            await SetCurrentYear(ano);
 
             return Redirect(redirectUri);
         }

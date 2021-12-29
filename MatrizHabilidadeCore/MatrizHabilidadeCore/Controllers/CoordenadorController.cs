@@ -16,7 +16,7 @@ namespace MatrizHabilidadeCore.Controllers
     {
         private readonly HistoricoCalculatorService _historicoCalculatorService;
 
-        public CoordenadorController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
+        public CoordenadorController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
         }
         public ActionResult Index(string planta, string area)
@@ -42,7 +42,7 @@ namespace MatrizHabilidadeCore.Controllers
             var chartBuilder = new ChartBuilderService(_db, _historicoCalculatorService);
             var historicoCalculator = new HistoricoCalculatorService(_db);
 
-            int ano = GetCurrentYear();
+            int ano = CurrentYear;
 
             if (ano == 0)
             {

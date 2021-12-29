@@ -18,7 +18,7 @@ namespace MatrizHabilidadeCore.Controllers
     {
         private readonly HistoricoCalculatorService _historicoCalculatorService;
 
-        public MaquinaController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
+        public MaquinaController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
         }
         public ActionResult Index(string planta, string area, string maquina)
@@ -52,7 +52,7 @@ namespace MatrizHabilidadeCore.Controllers
 
             Maquina _maquina = _db.Maquinas.Where(m => m.Id == maquina_id).FirstOrDefault();
 
-            int ano = GetCurrentYear();
+            int ano = CurrentYear;
             var currentDate = DateTime.Now;
 
             var model = new MaquinaViewModel()

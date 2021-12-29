@@ -21,7 +21,7 @@ namespace MatrizHabilidadeCore.Controllers
     public class FormularioController : BaseController
     {
 
-        public FormularioController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
+        public FormularioController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
 
         }
@@ -88,7 +88,7 @@ namespace MatrizHabilidadeCore.Controllers
                 .OrderBy(a => a.Alias)
                 .ToList();
 
-            if (CurrentUser.UsuarioAcesso <= NivelAcesso.Administrador)
+            if (User.IsInRole(NivelAcesso.Administrador.ToString("g")))
             {
                 foreach (var area in areas)
                 {
@@ -120,7 +120,7 @@ namespace MatrizHabilidadeCore.Controllers
             }
             else
             {
-                var coordenador = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentCoordenador.Email.ToLower()).FirstOrDefault();
+                var coordenador = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentUser.Email.ToLower()).FirstOrDefault();
 
                 if (coordenador == null)
                 {
@@ -319,9 +319,9 @@ namespace MatrizHabilidadeCore.Controllers
 
                             if (int.TryParse(Encrypting.Decrypt(acao.ResponsavelPlanoAcao), out int responsavelId))
                             {
-                                var criador = _db.Coordenadores.Where(c => c.Login.ToLower() == CurrentCoordenador.Email.ToLower()).FirstOrDefault();
+                                var criador = _db.Coordenadores.Where(c => c.Login.ToLower() == CurrentUser.Email.ToLower()).FirstOrDefault();
                                 var operador = _db.Colaboradores.Find(operadorId);
-                                var requisitante = _db.Coordenadores.Where(c => c.Login.ToLower() == CurrentCoordenador.Email.ToLower()).FirstOrDefault();
+                                var requisitante = _db.Coordenadores.Where(c => c.Login.ToLower() == CurrentUser.Email.ToLower()).FirstOrDefault();
 
                                 var planoAcao = new PlanoAcao()
                                 {
@@ -384,7 +384,7 @@ namespace MatrizHabilidadeCore.Controllers
                 if (int.TryParse(Encrypting.Decrypt(colaborador), out int colaboradorId))
                 {
                     var auditorias = _db.Auditorias.Where(a => a.TreinamentoEspecificoId == treinamentoEspecificoId && a.ColaboradorId == colaboradorId);
-                    var coordenador = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentCoordenador.Email.ToLower()).FirstOrDefault();
+                    var coordenador = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentUser.Email.ToLower()).FirstOrDefault();
 
                     _db.Retreinamentos.Add(new Retreinamento()
                     {
@@ -484,7 +484,7 @@ namespace MatrizHabilidadeCore.Controllers
 
             if (int.TryParse(Encrypting.Decrypt(padrao), out int treinamentoEspecificoId))
             {
-                var coordenador = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentCoordenador.Email.ToLower()).FirstOrDefault();
+                var coordenador = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentUser.Email.ToLower()).FirstOrDefault();
 
                 if (int.TryParse(Encrypting.Decrypt(area), out aux))
                 {
@@ -515,7 +515,7 @@ namespace MatrizHabilidadeCore.Controllers
                     query = query.Where(c => c.Nome.ToLower().Contains(operador.ToLower()) || c.Chapa.ToLower().Contains(operador.ToLower()));
                 }
 
-                if (CurrentUser.UsuarioAcesso > NivelAcesso.Administrador)
+                if (User.IsInRole(NivelAcesso.Administrador.ToString("g")))
                 {
                     query = query.Where(c => c.Uniorg.CoordenadorId == coordenador.Id);
                 }
@@ -622,9 +622,9 @@ namespace MatrizHabilidadeCore.Controllers
                 treinamentos = treinamentos.Where(t => t.Maquinas.Any(m => m.Id == maquinaId.Value));
             }
 
-            if (NivelAcesso.Administrador)
+            if (User.IsInRole(NivelAcesso.Administrador.ToString("g")))
             {
-                var coordenador = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentCoordenador.Email.ToLower()).FirstOrDefault();
+                var coordenador = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentUser.Email.ToLower()).FirstOrDefault();
 
                 treinamentos = treinamentos.Where(t => t.Maquinas.Any(m => m.Uniorgs.Any(u => u.CoordenadorId == coordenador.Id)));
             }
@@ -815,14 +815,14 @@ namespace MatrizHabilidadeCore.Controllers
                 });
             }
 
-            foreach (var _profissional in _db.Colaboradores.Where(c => c.IsAtivo).Where(c => c.Situacao == Normal).OrderBy(c => c.Nome).ToList())
+            foreach (var _profissional in _db.Colaboradores.Where(c => c.IsAtivo).Where(c => c.Situacao == Situacao.Normal).OrderBy(c => c.Nome).ToList())
             {
-                var key = Encrypting.Encrypt(_profissional.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(_profissional.Id.ToString());
 
                 model.Profissionais.Add(new Option()
                 {
                     Key = key,
-                    Text = $"{_profissional.Usuario.Chapa} - {_profissional.Usuario.Nome}",
+                    Text = $"{_profissional.Chapa} - {_profissional.Nome}",
                 });
             }
 
@@ -969,7 +969,7 @@ namespace MatrizHabilidadeCore.Controllers
                 });
             }
 
-            var _profissionais = _db.Colaboradores.Where(c => c.IsAtivo).Where(c => c.Situacao == Normal);
+            var _profissionais = _db.Colaboradores.Where(c => c.IsAtivo).Where(c => c.Situacao == Situacao.Normal);
 
             if (maquinaId.HasValue)
             {
@@ -984,14 +984,14 @@ namespace MatrizHabilidadeCore.Controllers
                 _profissionais = _profissionais.Where(p => p.Uniorg.Coordenador.Area.PlantaId == plantaId.Value);
             }
 
-            foreach (var _profissional in _profissionais.OrderBy(p => p.Usuario.Nome).ToList())
+            foreach (var _profissional in _profissionais.OrderBy(p => p.Nome).ToList())
             {
-                var key = Encrypting.Encrypt(_profissional.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(_profissional.Id.ToString());
 
                 model.Profissionais.Add(new Option()
                 {
                     Key = key,
-                    Text = $"{_profissional.Usuario.Chapa} - {_profissional.Usuario.Nome}",
+                    Text = $"{_profissional.Chapa} - {_profissional.Nome}",
                 });
             }
 
@@ -1051,7 +1051,7 @@ namespace MatrizHabilidadeCore.Controllers
                 colaboradores = colaboradores.Where(c => c.Uniorg.Coordenador.Area.PlantaId == plantaId.Value);
             }
 
-            foreach (var colaborador in colaboradores.OrderBy(c => c.Usuario.Nome).ToList())
+            foreach (var colaborador in colaboradores.OrderBy(c => c.Nome).ToList())
             {
                 var treinamentos = colaborador.Uniorg.Maquinas.SelectMany(m => m.TreinamentoEspecificos).AsQueryable();
 
@@ -1085,7 +1085,7 @@ namespace MatrizHabilidadeCore.Controllers
                 foreach (var treinamentoEspecifico in treinamentos.ToList())
                 {
                     var metaTreinamentoEspecifico = _db.MetasTreinamentosEspecificos
-                        .Where(m => m.ColaboradorId == colaborador.Usuario.Id && m.TreinamentoEspecificoId == treinamentoEspecifico.Id)
+                        .Where(m => m.ColaboradorId == colaborador.Id && m.TreinamentoEspecificoId == treinamentoEspecifico.Id)
                         .OrderByDescending(m => m.DataLancamento)
                         .FirstOrDefault();
 
@@ -1106,13 +1106,13 @@ namespace MatrizHabilidadeCore.Controllers
 
                     var row = new MetaViewModel.Row()
                     {
-                        Colaborador = Encrypting.Encrypt(colaborador.Usuario.Id.ToString()),
+                        Colaborador = Encrypting.Encrypt(colaborador.Id.ToString()),
                         Treinamento = Encrypting.Encrypt(treinamentoEspecifico.Id.ToString()),
                         Planta = colaborador.Uniorg.Coordenador.Area.Planta.Descricao,
                         Area = colaborador.Uniorg.Coordenador.Area.Descricao,
                         Maquina = string.Join(", ", colaborador.Uniorg.Maquinas.Select(m => m.Descricao).Distinct()),
-                        Chapa = colaborador.Usuario.Chapa,
-                        Nome = colaborador.Usuario.Nome,
+                        Chapa = colaborador.Chapa,
+                        Nome = colaborador.Nome,
                         Padrao = treinamentoEspecifico.Descricao,
                         Meta = meta,
                     };
@@ -1234,14 +1234,14 @@ namespace MatrizHabilidadeCore.Controllers
 
             model.Padroes = model.Padroes.OrderBy(p => p.Text).ToList();
 
-            foreach (var _profissional in _db.Colaboradores.Where(c => c.IsAtivo).Where(c => c.Situacao == Situacao.Normal).OrderBy(c => c.Usuario.Nome).ToList())
+            foreach (var _profissional in _db.Colaboradores.Where(c => c.IsAtivo).Where(c => c.Situacao == Situacao.Normal).OrderBy(c => c.Nome).ToList())
             {
-                var key = Encrypting.Encrypt(_profissional.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(_profissional.Id.ToString());
 
                 model.Profissionais.Add(new Option()
                 {
                     Key = key,
-                    Text = $"{_profissional.Usuario.Chapa} - {_profissional.Usuario.Nome}",
+                    Text = $"{_profissional.Chapa} - {_profissional.Nome}",
                 });
             }
 
@@ -1417,14 +1417,14 @@ namespace MatrizHabilidadeCore.Controllers
                 _profissionais = _profissionais.Where(p => p.Uniorg.Coordenador.Area.PlantaId == plantaId.Value);
             }
 
-            foreach (var _profissional in _profissionais.OrderBy(p => p.Usuario.Nome).ToList())
+            foreach (var _profissional in _profissionais.OrderBy(p => p.Nome).ToList())
             {
-                var key = Encrypting.Encrypt(_profissional.Usuario.Id.ToString());
+                var key = Encrypting.Encrypt(_profissional.Id.ToString());
 
                 model.Profissionais.Add(new Option()
                 {
                     Key = key,
-                    Text = $"{_profissional.Usuario.Chapa} - {_profissional.Usuario.Nome}",
+                    Text = $"{_profissional.Chapa} - {_profissional.Nome}",
                 });
             }
 
@@ -1474,7 +1474,7 @@ namespace MatrizHabilidadeCore.Controllers
                     }
                 }
 
-                colaboradores = colaboradores.Where(t => colaboradoresSelecionados.Contains(t.Usuario.Id));
+                colaboradores = colaboradores.Where(t => colaboradoresSelecionados.Contains(t.Id));
             }
             else if (maquinaId.HasValue)
             {
@@ -1489,7 +1489,7 @@ namespace MatrizHabilidadeCore.Controllers
                 colaboradores = colaboradores.Where(c => c.Uniorg.Coordenador.Area.PlantaId == plantaId.Value);
             }
 
-            foreach (var colaborador in colaboradores.OrderBy(c => c.Usuario.Nome).ToList())
+            foreach (var colaborador in colaboradores.OrderBy(c => c.Nome).ToList())
             {
                 if (tipoTreinamento == TreinamentoViewModel.TipoTreinamento.Específico || tipoTreinamento == TreinamentoViewModel.TipoTreinamento.Todos)
                 {
@@ -1531,7 +1531,7 @@ namespace MatrizHabilidadeCore.Controllers
                     {
                         var turmaTreinamentoEspecifico = _db.TurmasTreinamentosEspecificos
                             .Where(m => m.TreinamentoEspecificoId == treinamentoEspecifico.Id)
-                            .Where(m => m.TurmaColaboradores.Any(c => c.ColaboradorId == colaborador.Usuario.Id))
+                            .Where(m => m.TurmaColaboradores.Any(c => c.ColaboradorId == colaborador.Id))
                             .OrderByDescending(m => m.DataRealizacao);
 
                         if (turmaTreinamentoEspecifico.Any())
@@ -1540,12 +1540,12 @@ namespace MatrizHabilidadeCore.Controllers
                             {
                                 model.Add(new TreinamentoViewModel.Row()
                                 {
-                                    Colaborador = Encrypting.Encrypt(colaborador.Usuario.Id.ToString()),
+                                    Colaborador = Encrypting.Encrypt(colaborador.Id.ToString()),
                                     Treinamento = Encrypting.Encrypt(treinamentoEspecifico.Id.ToString()),
 
-                                    Chapa = colaborador.Usuario.Chapa,
-                                    Nome = colaborador.Usuario.Nome,
-                                    Gestor = colaborador.Uniorg.Coordenador.Usuario.Nome,
+                                    Chapa = colaborador.Chapa,
+                                    Nome = colaborador.Nome,
+                                    Gestor = colaborador.Uniorg.Coordenador.Nome,
                                     Padrao = treinamentoEspecifico.Descricao,
                                     DataConclusao = turma.DataRealizacao.ToString("dd/MM/yyyy"),
                                     Pontuacao = "",
@@ -1557,12 +1557,12 @@ namespace MatrizHabilidadeCore.Controllers
                         {
                             model.Add(new TreinamentoViewModel.Row()
                             {
-                                Colaborador = Encrypting.Encrypt(colaborador.Usuario.Id.ToString()),
+                                Colaborador = Encrypting.Encrypt(colaborador.Id.ToString()),
                                 Treinamento = Encrypting.Encrypt(treinamentoEspecifico.Id.ToString()),
 
-                                Chapa = colaborador.Usuario.Chapa,
-                                Nome = colaborador.Usuario.Nome,
-                                Gestor = colaborador.Uniorg.Coordenador.Usuario.Nome,
+                                Chapa = colaborador.Chapa,
+                                Nome = colaborador.Nome,
+                                Gestor = colaborador.Uniorg.Coordenador.Nome,
                                 Padrao = treinamentoEspecifico.Descricao,
                                 DataConclusao = "",
                                 Pontuacao = "",
@@ -1618,7 +1618,7 @@ namespace MatrizHabilidadeCore.Controllers
                     {
                         var turmas = _db.TurmasTreinamentos
                             .Where(m => m.TreinamentoId == treinamento.Id)
-                            .Where(m => m.Notas.Any(n => n.ColaboradorId == colaborador.Usuario.Id))
+                            .Where(m => m.Notas.Any(n => n.ColaboradorId == colaborador.Id))
                             .OrderByDescending(m => m.DataRealizacao);
 
                         if (turmas.Any())
@@ -1627,7 +1627,7 @@ namespace MatrizHabilidadeCore.Controllers
                             {
                                 string nota = "";
 
-                                var notaQuery = turma.Notas.Where(n => n.ColaboradorId == colaborador.Usuario.Id);
+                                var notaQuery = turma.Notas.Where(n => n.ColaboradorId == colaborador.Id);
 
                                 if (notaQuery.Any())
                                 {
@@ -1636,12 +1636,12 @@ namespace MatrizHabilidadeCore.Controllers
 
                                 model.Add(new TreinamentoViewModel.Row()
                                 {
-                                    Colaborador = Encrypting.Encrypt(colaborador.Usuario.Id.ToString()),
+                                    Colaborador = Encrypting.Encrypt(colaborador.Id.ToString()),
                                     Treinamento = Encrypting.Encrypt(treinamento.Id.ToString()),
 
-                                    Chapa = colaborador.Usuario.Chapa,
-                                    Nome = colaborador.Usuario.Nome,
-                                    Gestor = colaborador.Uniorg.Coordenador.Usuario.Nome,
+                                    Chapa = colaborador.Chapa,
+                                    Nome = colaborador.Nome,
+                                    Gestor = colaborador.Uniorg.Coordenador.Nome,
                                     Padrao = treinamento.Descricao,
                                     DataConclusao = turma.DataRealizacao.ToString("dd/MM/yyyy"),
                                     Pontuacao = nota,
@@ -1653,12 +1653,12 @@ namespace MatrizHabilidadeCore.Controllers
                         {
                             model.Add(new TreinamentoViewModel.Row()
                             {
-                                Colaborador = Encrypting.Encrypt(colaborador.Usuario.Id.ToString()),
+                                Colaborador = Encrypting.Encrypt(colaborador.Id.ToString()),
                                 Treinamento = Encrypting.Encrypt(treinamento.Id.ToString()),
 
-                                Chapa = colaborador.Usuario.Chapa,
-                                Nome = colaborador.Usuario.Nome,
-                                Gestor = colaborador.Uniorg.Coordenador.Usuario.Nome,
+                                Chapa = colaborador.Chapa,
+                                Nome = colaborador.Nome,
+                                Gestor = colaborador.Uniorg.Coordenador.Nome,
                                 Padrao = treinamento.Descricao,
                                 DataConclusao = "",
                                 Pontuacao = "",
@@ -1713,14 +1713,14 @@ namespace MatrizHabilidadeCore.Controllers
                     foreach (var treinamento in treinamentos.ToList())
                     {
                         var turmaTreinamentoEspecifico = _db.TurmasTreinamentos
-                            .Where(m => m.Notas.Any(n => n.Colaborador.Id == colaborador.Usuario.Id) && m.TreinamentoId == treinamento.Id)
+                            .Where(m => m.Notas.Any(n => n.Colaborador.Id == colaborador.Id) && m.TreinamentoId == treinamento.Id)
                             .OrderByDescending(m => m.DataRealizacao);
 
                         foreach (var turma in turmaTreinamentoEspecifico.ToList())
                         {
                             string nota = "";
 
-                            var notaQuery = turma.Notas.Where(n => n.ColaboradorId == colaborador.Usuario.Id);
+                            var notaQuery = turma.Notas.Where(n => n.ColaboradorId == colaborador.Id);
 
                             if (notaQuery.Any())
                             {
@@ -1729,12 +1729,12 @@ namespace MatrizHabilidadeCore.Controllers
 
                             var row = new TreinamentoViewModel.Row()
                             {
-                                Colaborador = Encrypting.Encrypt(colaborador.Usuario.Id.ToString()),
+                                Colaborador = Encrypting.Encrypt(colaborador.Id.ToString()),
                                 Treinamento = Encrypting.Encrypt(treinamento.Id.ToString()),
 
-                                Chapa = colaborador.Usuario.Chapa,
-                                Nome = colaborador.Usuario.Nome,
-                                Gestor = colaborador.Uniorg.Coordenador.Usuario.Nome,
+                                Chapa = colaborador.Chapa,
+                                Nome = colaborador.Nome,
+                                Gestor = colaborador.Uniorg.Coordenador.Nome,
                                 Padrao = treinamento.Descricao,
                                 DataConclusao = turma.DataRealizacao.ToString("dd/MM/yyyy"),
                                 Pontuacao = nota,

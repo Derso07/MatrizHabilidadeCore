@@ -61,5 +61,6 @@ namespace MatrizHabilidadeDatabase.Models
         public string Url { get; set; }
 
         public virtual List<ConsoleApplicationLog> Logs { get; set; }
+        public string UserId { get; set; }
     }
 }

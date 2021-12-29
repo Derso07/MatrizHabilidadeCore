@@ -63,5 +63,6 @@ namespace MatrizHabilidadeDatabase.Models
         public bool IsFacilitador { get; set; }
 
         public NivelAcesso NivelAcesso { get; set; }
+        public Usuario Usuarios { get; set; }
     }
 }

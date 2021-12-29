@@ -17,70 +17,122 @@ namespace MatrizHabilidadeCore.Controllers
     {
         protected readonly DataBaseContext _db;
         protected readonly CookieService _cookieService;
+        protected readonly UserManager<Usuario> _userManager;
+        protected readonly SignInManager<Usuario> _signInManager;
 
-        public BaseController(DataBaseContext db, CookieService cookieService)
+        public BaseController(DataBaseContext db, CookieService cookieService, UserManager<Usuario> userManager, SignInManager<Usuario> signInManager)
         {
             _db = db;
             _cookieService = cookieService;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        public Colaborador CurrentColaborador { get; set; }
-        public Coordenador CurrentCoordenador { get; set; }
+        public Usuario CurrentUser { get; set; }
 
-        private int? _currentYear;
-        public async Task<int> SetCurrentYear(int year)
+        public int CurrentYear { get; private set; }
+
+        public async Task SetCurrentYear(int year)
         {
-            dynamic claim;
-            _currentYear = year;
-            TempData[Claims.CurrentYear.Value] = year;
-            if (_currentColaborador != null)
-            {
-                claim = _db.Claims.Where(c => c.Id == _currentColaborador.Id && c.ClaimType == Claims.CurrentYear.Value).FirstOrDefault();
-            }
-            claim = _db.Claims.Where(c => c.Id == _currentCoordenador.Id && c.ClaimType == Claims.CurrentYear.Value).FirstOrDefault();
+            var claims = await _userManager.GetClaimsAsync(CurrentUser);
 
-            if (claim == null)
+            if (claims.Any(c => c.Type == Claims.CurrentYear.Value))
             {
-                _db.Claims.Add(new MatrizHabilidadeDataBaseCore.Models.Claim()
-                {
-                    ClaimType = Claims.CurrentYear.Value,
-                    ClaimValue = year.ToString()
-                });
-            }
-            else
-            {
-                claim.ClaimValue = year.ToString();
-                _db.Update(claim);
-                _db.SaveChanges();
+                var claim = claims.Where(c => c.Type == Claims.CurrentYear.Value).FirstOrDefault();
+
+                await _userManager.RemoveClaimAsync(CurrentUser, claim);
             }
 
-            return 0;
-        }
-
-        public int GetCurrentYear()
-        {
-            dynamic year;
-            if (_currentcolaborador != null)
-            {
-                year = _db.claims.where(y => y.id == _currentcolaborador.id && y.claimtype == claims.currentyear.value).select(y => y.claimvalue).firstordefault();
-            }
-            else
-            {
-                year = _db.claims.where(y => y.id == _currentcoordenador.id && y.claimtype == claims.currentyear.value).select(y => y.claimvalue).firstordefault();
-            }
-            _currentyear = convert.toint32(year);
-            return 0;
-        }
-
-        public async override Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-        {
-            TempData[Claims.CurrentYear.Value] = GetCurrentYear();
-            return;
+            await _userManager.AddClaimAsync(CurrentUser, new Claim(Claims.CurrentYear.Value, year.ToString()));
+            CurrentYear = year;
         }
 
         protected void SetMessage(string message)
         {
             TempData["Message"] = message;
+        }
+
+        public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                var cookie = _cookieService.GetCookie<CookieViewModel>("GestaoConhecimentoNovelis");
+                var user = _db.Usuarios.Where(u => u.Login == cookie.Usu_login).FirstOrDefault();
+
+                if (user == null)
+                {
+                    user = new Usuario()
+                    {
+                        Id = new Guid().ToString("N"),
+                        Login = cookie.Usu_login,
+                        UserName = cookie.Usu_login,
+                        Nome = cookie.Usu_nome,
+                        Email = cookie.Usu_email,
+                        IsAtivo = true,
+                    };
+                    await _userManager.CreateAsync(user, "12345678");
+                }
+
+                foreach (var acesso in Enum.GetValues<NivelAcesso>())
+                {
+                    if (cookie.Usu_acesso < acesso)
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, acesso.ToString("g"));
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, acesso.ToString("g"));
+                    }
+                }
+                await _signInManager.SignInAsync(user, true);
+            }
+            CurrentUser = await _userManager.GetUserAsync(User);
+
+            var claims = await _userManager.GetClaimsAsync(CurrentUser);
+
+            if (claims.Any(c => c.Type == Claims.CurrentYear.Value))
+            {
+                CurrentYear = Convert.ToInt32(claims.Where(c => c.Type == Claims.CurrentYear.Value).FirstOrDefault().Value);
+            }
+            else
+            {
+                await SetCurrentYear(DateTime.Now.Year);
+            }
+
+            var coordenador = _db.Coordenadores.Where(c => c.Login == CurrentUser.Login).FirstOrDefault();
+
+            if (coordenador != null)
+            {
+                CurrentUser.IsCoordenador = true;
+                CurrentUser.CoordenadorId = coordenador.Id;
+                CurrentUser.ColaboradorId = null;
+
+                _db.Update(CurrentUser);
+                _db.SaveChanges();
+            }
+            else
+            {
+                var colaborador = _db.Colaboradores.Where(c => c.Login == CurrentUser.Login).FirstOrDefault();
+
+                if (colaborador != null)
+                {
+                    CurrentUser.IsCoordenador = false;
+                    CurrentUser.ColaboradorId = colaborador.Id;
+                    CurrentUser.CoordenadorId = null;
+
+                    _db.Update(CurrentUser);
+                    _db.SaveChanges();
+                }
+                else
+                {
+                    CurrentUser.IsCoordenador = null;
+                    CurrentUser.CoordenadorId = null;
+                    CurrentUser.ColaboradorId = null;
+
+                    _db.Update(CurrentUser);
+                    _db.SaveChanges();
+                }
+            }
         }
     }
 }

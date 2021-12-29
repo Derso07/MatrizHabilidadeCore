@@ -15,7 +15,7 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class PlanoAcaoController : BaseController
     {
-        public PlanoAcaoController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
+        public PlanoAcaoController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
         }
         public enum ReturnUrl
@@ -57,11 +57,11 @@ namespace MatrizHabilidadeCore.Controllers
 
             if (coordenadorQuery.Any())
             {
-                usuario = coordenadorQuery.First().Usuario;
+                usuario = coordenadorQuery.First().Usuarios;
             }
             else if (colaboradorQuery.Any())
             {
-                usuario = colaboradorQuery.First().Usuario;
+                usuario = colaboradorQuery.First().Usuarios;
             }
             else
             {
@@ -94,7 +94,7 @@ namespace MatrizHabilidadeCore.Controllers
 
             if (string.IsNullOrEmpty(model.ReturnUrl))
             {
-                if (Request.IsMobileBrowser())
+                if (Request.IsMobileDevice())
                 {
                     model.ReturnUrl = "/MatrizHabilidade/Formulario";
                 }
@@ -106,9 +106,9 @@ namespace MatrizHabilidadeCore.Controllers
 
             var query = _db.PlanosAcao.AsQueryable();
 
-            if (CurrentUser.UsuarioAcesso == NivelAcesso.Funcionario)
+            if (User.IsInRole(NivelAcesso.Funcionario.ToString("g")))
             {
-                var colaborador = (Colaborador)usuario.Colaborador;
+                var colaborador = Colaborador;
 
                 query = query.Where(p => p.Colaborador.Uniorg.Maquinas.Select(m => m.Id).Intersect(colaborador.Uniorg.Maquinas.Select(m => m.Id)).Any());
 
@@ -158,8 +158,8 @@ namespace MatrizHabilidadeCore.Controllers
                 }
             }
 
-            var dataInicial = new DateTime(base.GetCurrentYear() - 1, 04, 01);
-            var dataFinal = new DateTime(base.GetCurrentYear(), 03, DateTime.DaysInMonth(base.GetCurrentYear(), 03));
+            var dataInicial = new DateTime(CurrentYear - 1, 04, 01);
+            var dataFinal = new DateTime(CurrentYear, 03, DateTime.DaysInMonth(CurrentYear, 03));
 
             query = query.Where(q => q.DataCriacao >= dataInicial && q.DataCriacao <= dataFinal);
 

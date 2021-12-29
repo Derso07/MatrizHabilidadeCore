@@ -73,5 +73,6 @@ namespace MatrizHabilidadeDatabase.Models
         public virtual List<Retreinamento> Retreinamentos { get; set; }
 
         public NivelAcesso NivelAcesso { get; set; }
+        public Usuario Usuarios { get; set; }
     }
 }

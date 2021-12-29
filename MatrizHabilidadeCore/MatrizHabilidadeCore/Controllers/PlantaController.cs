@@ -12,7 +12,7 @@ namespace MatrizHabilidadeCore.Controllers
     public class PlantaController : BaseController
     {
 
-        public PlantaController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
+        public PlantaController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
 
         }

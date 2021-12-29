@@ -17,7 +17,7 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class LoginController : BaseController
     {
-        public LoginController(DataBaseContext _db, CookieService _cookieService) : base(_db, _cookieService)
+        public LoginController(DataBaseContext _db, CookieService _cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, _cookieService, _userManager, _signInManager)
         {
         }
 
@@ -36,7 +36,6 @@ namespace MatrizHabilidadeCore.Controllers
                     Nome = "ALESSANDRA APARECIDA SILVA",
                     Chapa = "2002782",
                     Email = "ALESSANDRA.SILVA1@NOVELIS.ADITYABIRLA.COM",
-                    UsuarioAcesso = NivelAcesso.Administrador,
                     IsAtivo = true,
                 };
             }
@@ -46,7 +45,6 @@ namespace MatrizHabilidadeCore.Controllers
                 //Salvando informações do usuario em um cookie para que seja reconhecido o login
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Role, user.UsuarioAcesso.ToString("g")),
                     new Claim(ClaimTypes.NameIdentifier, user.Login),
                     new Claim(ClaimTypes.Name, user.Nome),
                     new Claim(ClaimTypes.Email, user.Email),

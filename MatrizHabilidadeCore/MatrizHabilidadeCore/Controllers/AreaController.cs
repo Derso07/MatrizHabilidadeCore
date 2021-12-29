@@ -14,7 +14,7 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class AreaController : BaseController
     {
-        public AreaController(DataBaseContext _db, CookieService _cookieService):base(_db, _cookieService)
+        public AreaController(DataBaseContext _db, CookieService _cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) :base(_db, _cookieService, _userManager, _signInManager)
         {
         }
         public ActionResult Index(string planta, string area, bool? isRedirected)
@@ -36,7 +36,7 @@ namespace MatrizHabilidadeCore.Controllers
                 {
                     Area _area = _db.Areas.Where(p => p.Id == area_id).FirstOrDefault();
 
-                    var model = new AreaViewModel(_area.Id, _db, _cookieService, base.GetCurrentYear())
+                    var model = new AreaViewModel(_area.Id, _db, _cookieService, CurrentYear)
                     {
                         PlantaId = Encrypting.Encrypt(_planta.Id.ToString()),
                         PlantaDescricao = _planta.Descricao,

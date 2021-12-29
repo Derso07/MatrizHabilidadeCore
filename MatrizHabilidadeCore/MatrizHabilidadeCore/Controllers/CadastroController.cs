@@ -16,7 +16,7 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class CadastroController : BaseController
     {
-        public CadastroController(DataBaseContext _db, CookieService cookieService) : base(_db, cookieService)
+        public CadastroController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
 
         }
