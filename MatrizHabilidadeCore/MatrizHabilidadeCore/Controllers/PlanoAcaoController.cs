@@ -15,21 +15,18 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class PlanoAcaoController : BaseController
     {
-        public PlanoAcaoController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
+        public PlanoAcaoController(
+            DataBaseContext _db, 
+            CookieService cookieService, 
+            UserManager<Usuario> _userManager, 
+            SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
-        }
-        public enum ReturnUrl
-        {
-            Planta = 0,
-            Area = 1,
-            Maquina = 2,
         }
 
         public ActionResult Index(string returnUrl, string planta, string area, string[] maquinas, string status)
         {
             var path = HttpContext.Request.Path;
             var queryString = HttpContext.Request.QueryString;
-
 
             var model = new PlanoAcaoViewModel()
             {
@@ -39,7 +36,7 @@ namespace MatrizHabilidadeCore.Controllers
                 PathAndQuery = $"{path}{queryString}"
             };
 
-            List<int> statuses = new List<int>();
+            var statuses = new List<int>();
 
             if (!string.IsNullOrEmpty(status))
             {
@@ -50,28 +47,11 @@ namespace MatrizHabilidadeCore.Controllers
             int plantaId = 0;
             int areaId = 0;
 
-            Usuario usuario = new Usuario();
-
-            var coordenadorQuery = _db.Coordenadores.Where(u => u.Login.ToLower() == CurrentUser.Email.ToLower());
-            var colaboradorQuery = _db.Colaboradores.Where(u => u.Login.ToLower() == CurrentUser.Email.ToLower());
-
-            if (coordenadorQuery.Any())
-            {
-                usuario = coordenadorQuery.First().Usuarios;
-            }
-            else if (colaboradorQuery.Any())
-            {
-                usuario = colaboradorQuery.First().Usuarios;
-            }
-            else
-            {
-                SetMessage("O usuário não tem login cadastrado. Contate o setor de RH");
-
-                return RedirectToAction("Index", "Home");
-            }
-
             var dataAtual = DateTime.Now;
             var dataReferencia = new DateTime(dataAtual.Year, dataAtual.Month, DateTime.DaysInMonth(dataAtual.Year, dataAtual.Month));
+
+            var colaborador = CurrentUser.Colaborador;
+            var coordenador = CurrentUser.Coordenador;
 
             if (!string.IsNullOrEmpty(returnUrl))
             {
@@ -106,10 +86,8 @@ namespace MatrizHabilidadeCore.Controllers
 
             var query = _db.PlanosAcao.AsQueryable();
 
-            if (User.IsInRole(NivelAcesso.Funcionario.ToString("g")))
+            if (CurrentUser.IsCoordenador == false)
             {
-                var colaborador = Colaborador;
-
                 query = query.Where(p => p.Colaborador.Uniorg.Maquinas.Select(m => m.Id).Intersect(colaborador.Uniorg.Maquinas.Select(m => m.Id)).Any());
 
                 model.SiteMap.Add(colaborador.Uniorg.Coordenador.Area.Planta.Descricao);
@@ -134,8 +112,8 @@ namespace MatrizHabilidadeCore.Controllers
 
                 if (maquinas != null)
                 {
-                    List<int> filtroIdMaquinas = new List<int>();
-                    List<string> filtroDescricaoMaquinas = new List<string>();
+                    var filtroIdMaquinas = new List<int>();
+                    var filtroDescricaoMaquinas = new List<string>();
 
                     foreach (var maquina in maquinas)
                     {
@@ -168,7 +146,7 @@ namespace MatrizHabilidadeCore.Controllers
             #region Tabela Status Atividade
             model.TabelaStatusAtividade = new PlanoAcaoViewModel.StatusAtividades
             {
-                Total = acoes.Count(),
+                Total = acoes.Count,
                 Concluida = acoes.Where(a => a.DataConclusao.HasValue && a.DataConclusao.Value <= a.Prazo).Count(),
                 ConcluidaAtraso = acoes.Where(a => a.DataConclusao.HasValue && a.DataConclusao.Value > a.Prazo).Count(),
                 Andamento = acoes.Where(a => !a.DataConclusao.HasValue && a.Prazo > dataAtual).Count(),
@@ -240,12 +218,12 @@ namespace MatrizHabilidadeCore.Controllers
 
                 if (acoes[x].ColaboradorResponsavel != null)
                 {
-                    isResponsavel = acoes[x].ColaboradorResponsavelId == usuario.Id;
+                    isResponsavel = acoes[x].ColaboradorResponsavelId == colaborador?.Id;
                     nomeResponsavel = acoes[x].ColaboradorResponsavel.Nome;
                 }
                 else if (acoes[x].CoordenadorResponsavel != null)
                 {
-                    isResponsavel = acoes[x].CoordenadorResponsavelId == usuario.Id;
+                    isResponsavel = acoes[x].CoordenadorResponsavelId == coordenador?.Id;
                     nomeResponsavel = acoes[x].CoordenadorResponsavel.Nome;
                 }
 
@@ -349,8 +327,18 @@ namespace MatrizHabilidadeCore.Controllers
         {
             var model = new FiltroPlanoAcaoViewModel();
 
-            int.TryParse(Encrypting.Decrypt(planta), out int plantaId);
-            int.TryParse(Encrypting.Decrypt(area), out int areaId);
+            int? plantaId = null;
+            int? areaId = null;
+
+            if (int.TryParse(Encrypting.Decrypt(planta), out int aux))
+            {
+                plantaId = aux;
+            }
+
+            if (int.TryParse(Encrypting.Decrypt(area), out aux))
+            {
+                areaId = aux;
+            }
 
             IQueryable<Area> areas = _db.Areas
                 .Where(a => a.Coordenadores.Any())
@@ -360,13 +348,13 @@ namespace MatrizHabilidadeCore.Controllers
 
             IQueryable<Maquina> maquinas = _db.Maquinas.Where(m => m.IsAtivo);
 
-            if (plantaId > 0)
+            if (plantaId.HasValue)
             {
                 areas = areas.Where(a => a.PlantaId == plantaId);
                 maquinas = maquinas.Where(m => m.Uniorgs.FirstOrDefault().Coordenador.Area.PlantaId == plantaId);
             }
 
-            if (areaId > 0)
+            if (areaId.HasValue)
             {
                 maquinas = maquinas.Where(m => m.AreaId == areaId);
             }

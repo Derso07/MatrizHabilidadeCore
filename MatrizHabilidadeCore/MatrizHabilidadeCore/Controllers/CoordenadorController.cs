@@ -14,11 +14,18 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class CoordenadorController : BaseController
     {
-        private readonly HistoricoCalculatorService _historicoCalculatorService;
+        private readonly ChartBuilderService _chartBuilderService;
 
-        public CoordenadorController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
+        public CoordenadorController(
+            DataBaseContext _db, 
+            CookieService cookieService, 
+            UserManager<Usuario> _userManager,
+            ChartBuilderService chartBuilderService,
+            SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
+            _chartBuilderService = chartBuilderService;
         }
+
         public ActionResult Index(string planta, string area)
         {
             var path = HttpContext.Request.Path;
@@ -38,9 +45,6 @@ namespace MatrizHabilidadeCore.Controllers
             Area _area = _db.Areas.Where(p => p.Id == areaId).FirstOrDefault();
 
             var tiposTreinamento = _db.TiposTreinamentos.Select(t => t.Id).ToList();
-            var gapCalculator = new GAPCalculatorService();
-            var chartBuilder = new ChartBuilderService(_db, _historicoCalculatorService);
-            var historicoCalculator = new HistoricoCalculatorService(_db);
 
             int ano = CurrentYear;
 
@@ -89,7 +93,7 @@ namespace MatrizHabilidadeCore.Controllers
             model.Auditorias = new Grafico("GraficoAuditoria")
             {
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
-                Series = chartBuilder.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Auditoria, aditional),
+                Series = _chartBuilderService.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Auditoria, aditional),
             };
 
             model.AuditoriasExportacao = new Grafico("GraficoAuditoriaExportacao")
@@ -107,7 +111,7 @@ namespace MatrizHabilidadeCore.Controllers
                 Unit = "%",
                 Rotate = true,
                 HasLine = true,
-                Series = chartBuilder.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Treinamento, null),
+                Series = _chartBuilderService.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Treinamento, null),
             };
 
             model.TreinamentosExportacao = new Grafico("GraficoTreinamentoExportacao")
@@ -127,7 +131,7 @@ namespace MatrizHabilidadeCore.Controllers
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
                 Unit = "%",
                 HasLine = true,
-                Series = chartBuilder.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Conhecimento, null),
+                Series = _chartBuilderService.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Conhecimento, null),
             };
 
             model.ConhecimentoExportacao = new Grafico("GraficoConhecimentoExportacao")
@@ -146,7 +150,7 @@ namespace MatrizHabilidadeCore.Controllers
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
                 Unit = "%",
                 HasLine = true,
-                Series = chartBuilder.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Reducao, null),
+                Series = _chartBuilderService.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Reducao, null),
             };
 
             model.ReducaoExportacao = new Grafico("GraficoReducaoExportacao")
@@ -163,7 +167,7 @@ namespace MatrizHabilidadeCore.Controllers
             model.Instrutores = new Grafico("GraficoInstrutores")
             {
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
-                Series = chartBuilder.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Instrutores, null),
+                Series = _chartBuilderService.BuildCoordenadoresChart(coordenadores, ano, areaId, TipoHistorico.Instrutores, null),
             };
 
             model.InstrutoresExportacao = new Grafico("GraficoInstrutoresExportacao")

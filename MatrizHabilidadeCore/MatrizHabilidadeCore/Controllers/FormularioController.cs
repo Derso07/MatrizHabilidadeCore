@@ -1124,11 +1124,11 @@ namespace MatrizHabilidadeCore.Controllers
             return Json(model);
         }
 
-        public async Task<IActionResult> CadastrarMetaLote(IFormFile file)
+        public IActionResult CadastrarMetaLote(IFormFile file)
         {
             if (file != null)
             {
-                CadastrarMetaLoteService service = new CadastrarMetaLoteService(_db);
+                var service = new CadastrarMetaLoteService(_db);
                 var result = service.ReadFile(file.OpenReadStream());
 
                 if (result == CadastrarMetaLoteService.Result.Success)
@@ -1778,7 +1778,7 @@ namespace MatrizHabilidadeCore.Controllers
                 maquinaId = aux;
             }
 
-            List<Colaborador> colaboradores = new List<Colaborador>();
+            var colaboradores = new List<Colaborador>();
 
             if (profissionais?.Length > 0)
             {
@@ -1813,7 +1813,7 @@ namespace MatrizHabilidadeCore.Controllers
                 }
             }
 
-            Dictionary<int, TreinamentoViewModel.TipoTreinamento> treinamentos = new Dictionary<int, TreinamentoViewModel.TipoTreinamento>();
+            var treinamentos = new Dictionary<int, TreinamentoViewModel.TipoTreinamento>();
 
             if (padroes?.Length > 0)
             {
@@ -2026,7 +2026,7 @@ namespace MatrizHabilidadeCore.Controllers
         {
             if (file != null)
             {
-                CadastrarTreinamentoLoteService service = new CadastrarTreinamentoLoteService(_db);
+                var service = new CadastrarTreinamentoLoteService(_db);
                 var result = service.ReadFile(file.OpenReadStream());
 
                 if (result == CadastrarTreinamentoLoteService.Result.Success)

@@ -1,4 +1,5 @@
 ﻿using MatrizHabilidadeDatabase.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -88,6 +89,14 @@ namespace MatrizHabilidadeDataBaseCore
 
         public DbSet<IntegrationLog> IntegrationLogs { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+
+            optionsBuilder.EnableDetailedErrors();
+            optionsBuilder.EnableSensitiveDataLogging();
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataBaseContext).Assembly);
@@ -125,7 +134,16 @@ namespace MatrizHabilidadeDataBaseCore
 
             modelBuilder.Entity<ViewTreinamentoEspecifico>()
                 .HasKey(v => new { v.PlantaId, v.AreaId, v.CoordenadorId, v.ColaboradorId, v.MaquinaId, v.TreinamentoEspecificoId });
-            
+
+            foreach (var role in Enum.GetValues<NivelAcesso>())
+            {
+                modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+                {
+                    Id = role.ToString("g").ToUpper(),
+                    Name = role.ToString("g"),
+                    NormalizedName = role.ToString("g").ToUpper(),
+                });
+            }
         }
     }
 }

@@ -16,11 +16,18 @@ namespace MatrizHabilidadeCore.Controllers
 {
     public class MaquinaController : BaseController
     {
-        private readonly HistoricoCalculatorService _historicoCalculatorService;
+        private readonly ChartBuilderService _chartBuilder;
 
-        public MaquinaController(DataBaseContext _db, CookieService cookieService, UserManager<Usuario> _userManager, SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
+        public MaquinaController(
+            DataBaseContext _db, 
+            CookieService cookieService, 
+            UserManager<Usuario> _userManager,
+            ChartBuilderService chartBuilderService,
+            SignInManager<Usuario> _signInManager) : base(_db, cookieService, _userManager, _signInManager)
         {
+            _chartBuilder = chartBuilderService;
         }
+
         public ActionResult Index(string planta, string area, string maquina)
         {
             var path = HttpContext.Request.Path;
@@ -46,9 +53,6 @@ namespace MatrizHabilidadeCore.Controllers
             Area _area = _db.Areas.Where(p => p.Id == area_id).FirstOrDefault();
 
             var tiposTreinamento = _db.TiposTreinamentos.Select(t => t.Id).ToList();
-            var gapCalculator = new GAPCalculatorService();
-            var chartBuilder = new ChartBuilderService(_db, _historicoCalculatorService);
-            var historicoCalculator = new HistoricoCalculatorService(_db);
 
             Maquina _maquina = _db.Maquinas.Where(m => m.Id == maquina_id).FirstOrDefault();
 
@@ -70,7 +74,7 @@ namespace MatrizHabilidadeCore.Controllers
             model.Auditorias = new Grafico("GraficoAuditoria")
             {
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
-                Series = chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Auditoria, null),
+                Series = _chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Auditoria, null),
             };
 
             model.AuditoriasExportacao = new Grafico("GraficoAuditoriaExportacao")
@@ -88,7 +92,7 @@ namespace MatrizHabilidadeCore.Controllers
                 Unit = "%",
                 Rotate = true,
                 HasLine = true,
-                Series = chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Treinamento, null),
+                Series = _chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Treinamento, null),
             };
 
             model.TreinamentosExportacao = new Grafico("GraficoTreinamentoExportacao")
@@ -108,7 +112,7 @@ namespace MatrizHabilidadeCore.Controllers
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
                 Unit = "%",
                 HasLine = true,
-                Series = chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Conhecimento, null),
+                Series = _chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Conhecimento, null),
             };
 
             model.ConhecimentoExportacao = new Grafico("GraficoConhecimentoExportacao")
@@ -127,7 +131,7 @@ namespace MatrizHabilidadeCore.Controllers
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
                 Unit = "%",
                 HasLine = true,
-                Series = chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Reducao, null),
+                Series = _chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Reducao, null),
             };
 
             model.ReducaoExportacao = new Grafico("GraficoReducaoExportacao")
@@ -144,7 +148,7 @@ namespace MatrizHabilidadeCore.Controllers
             model.Instrutores = new Grafico("GraficoInstrutores")
             {
                 Alinhamento = Grafico.AlinhamentoGrafico.Right,
-                Series = chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Instrutores, null),
+                Series = _chartBuilder.BuildMaquinasChart(_maquina, ano, TipoHistorico.Instrutores, null),
             };
 
             model.InstrutoresExportacao = new Grafico("GraficoInstrutoresExportacao")

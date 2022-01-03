@@ -984,19 +984,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\eders\\.nuget\\packages\\": {}
+    "C:\\Users\\Emanuel\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\eders\\Documents\\MatrizHabilidadeCore_\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj",
+      "projectUniqueName": "C:\\Users\\Emanuel\\Desktop\\MatrizHabilidadeCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj",
       "projectName": "MatrizHabilidadeDataBaseCore",
-      "projectPath": "C:\\Users\\eders\\Documents\\MatrizHabilidadeCore_\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj",
-      "packagesPath": "C:\\Users\\eders\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\eders\\Documents\\MatrizHabilidadeCore_\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\obj\\",
+      "projectPath": "C:\\Users\\Emanuel\\Desktop\\MatrizHabilidadeCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore.csproj",
+      "packagesPath": "C:\\Users\\Emanuel\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Emanuel\\Desktop\\MatrizHabilidadeCore\\MatrizHabilidadeDataBaseCore\\MatrizHabilidadeDataBaseCore\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\eders\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Emanuel\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -1060,7 +1060,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.403\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.101\\RuntimeIdentifierGraph.json"
       }
     }
   }

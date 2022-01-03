@@ -34,16 +34,18 @@ namespace MatrizHabilidadeCore.Controllers
 
         public async Task SetCurrentYear(int year)
         {
-            var claims = await _userManager.GetClaimsAsync(CurrentUser);
+            var user = await _userManager.GetUserAsync(User);
+
+            var claims = await _userManager.GetClaimsAsync(user);
 
             if (claims.Any(c => c.Type == Claims.CurrentYear.Value))
             {
                 var claim = claims.Where(c => c.Type == Claims.CurrentYear.Value).FirstOrDefault();
 
-                await _userManager.RemoveClaimAsync(CurrentUser, claim);
+                await _userManager.RemoveClaimAsync(user, claim);
             }
 
-            await _userManager.AddClaimAsync(CurrentUser, new Claim(Claims.CurrentYear.Value, year.ToString()));
+            await _userManager.AddClaimAsync(user, new Claim(Claims.CurrentYear.Value, year.ToString()));
             CurrentYear = year;
         }
 
@@ -57,13 +59,24 @@ namespace MatrizHabilidadeCore.Controllers
             if (!User.Identity.IsAuthenticated)
             {
                 var cookie = _cookieService.GetCookie<CookieViewModel>("GestaoConhecimentoNovelis");
+
+                if (cookie == null)
+                {
+                    cookie = new CookieViewModel()
+                    {
+                        Usu_login = "SILVAALES",
+                        Usu_nome = "ALESSANDRA APARECIDA SILVA",
+                        Usu_email = "ALESSANDRA.SILVA1@NOVELIS.ADITYABIRLA.COM",
+                    };
+                }
+
                 var user = _db.Usuarios.Where(u => u.Login == cookie.Usu_login).FirstOrDefault();
 
                 if (user == null)
                 {
                     user = new Usuario()
                     {
-                        Id = new Guid().ToString("N"),
+                        Id = Guid.NewGuid().ToString("N"),
                         Login = cookie.Usu_login,
                         UserName = cookie.Usu_login,
                         Nome = cookie.Usu_nome,
@@ -84,55 +97,64 @@ namespace MatrizHabilidadeCore.Controllers
                         await _userManager.AddToRoleAsync(user, acesso.ToString("g"));
                     }
                 }
+
                 await _signInManager.SignInAsync(user, true);
-            }
-            CurrentUser = await _userManager.GetUserAsync(User);
 
-            var claims = await _userManager.GetClaimsAsync(CurrentUser);
+                var coordenador = _db.Coordenadores.Where(c => c.Login == CurrentUser.Login).FirstOrDefault();
 
-            if (claims.Any(c => c.Type == Claims.CurrentYear.Value))
-            {
-                CurrentYear = Convert.ToInt32(claims.Where(c => c.Type == Claims.CurrentYear.Value).FirstOrDefault().Value);
-            }
-            else
-            {
-                await SetCurrentYear(DateTime.Now.Year);
-            }
-
-            var coordenador = _db.Coordenadores.Where(c => c.Login == CurrentUser.Login).FirstOrDefault();
-
-            if (coordenador != null)
-            {
-                CurrentUser.IsCoordenador = true;
-                CurrentUser.CoordenadorId = coordenador.Id;
-                CurrentUser.ColaboradorId = null;
-
-                _db.Update(CurrentUser);
-                _db.SaveChanges();
-            }
-            else
-            {
-                var colaborador = _db.Colaboradores.Where(c => c.Login == CurrentUser.Login).FirstOrDefault();
-
-                if (colaborador != null)
+                if (coordenador != null)
                 {
-                    CurrentUser.IsCoordenador = false;
-                    CurrentUser.ColaboradorId = colaborador.Id;
-                    CurrentUser.CoordenadorId = null;
+                    CurrentUser.IsCoordenador = true;
+                    CurrentUser.CoordenadorId = coordenador.Id;
+                    CurrentUser.ColaboradorId = null;
 
                     _db.Update(CurrentUser);
                     _db.SaveChanges();
                 }
                 else
                 {
-                    CurrentUser.IsCoordenador = null;
-                    CurrentUser.CoordenadorId = null;
-                    CurrentUser.ColaboradorId = null;
+                    var colaborador = _db.Colaboradores.Where(c => c.Login == CurrentUser.Login).FirstOrDefault();
 
-                    _db.Update(CurrentUser);
-                    _db.SaveChanges();
+                    if (colaborador != null)
+                    {
+                        CurrentUser.IsCoordenador = false;
+                        CurrentUser.ColaboradorId = colaborador.Id;
+                        CurrentUser.CoordenadorId = null;
+
+                        _db.Update(CurrentUser);
+                        _db.SaveChanges();
+                    }
+                    else
+                    {
+                        CurrentUser.IsCoordenador = null;
+                        CurrentUser.CoordenadorId = null;
+                        CurrentUser.ColaboradorId = null;
+
+                        _db.Update(CurrentUser);
+                        _db.SaveChanges();
+                    }
                 }
+
+                var claims = await _userManager.GetClaimsAsync(CurrentUser);
+
+                if (claims.Any(c => c.Type == Claims.CurrentYear.Value))
+                {
+                    CurrentYear = Convert.ToInt32(claims.Where(c => c.Type == Claims.CurrentYear.Value).FirstOrDefault().Value);
+                }
+                else
+                {
+                    await SetCurrentYear(DateTime.Now.Year);
+                }
+
+                context.Result = new RedirectToActionResult("Index", "Home", new { });
+                return;
             }
+            else
+            {
+                CurrentUser = await _userManager.GetUserAsync(User);
+            }
+
+            await next();
         }
     }
 }

@@ -65,8 +65,6 @@ namespace MatrizHabilidadeDatabase.Models
 
         public int? CoordenadorId { get; set; }
 
-        public bool? IsColaborador { get; set; }
-
         public bool? IsCoordenador { get; set; }
 
         public string Login { get; set; }
@@ -92,5 +90,8 @@ namespace MatrizHabilidadeDatabase.Models
 
         public DateTime? DataAdmissao { get; set; }
 
+        public virtual Colaborador Colaborador { get; set; }
+
+        public virtual Coordenador Coordenador { get; set; }
     }
 }

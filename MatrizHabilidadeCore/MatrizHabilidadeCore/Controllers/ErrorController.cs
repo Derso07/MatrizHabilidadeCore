@@ -1,12 +1,10 @@
 ﻿using MatrizHabilidadeCore.Services;
 using MatrizHabilidadeDatabase.Models;
 using MatrizHabilidadeDataBaseCore;
-using MatrizHabilidadeDataBaseCore.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,25 +16,24 @@ namespace MatrizHabilidadeCore.Controllers
     public class ErrorController : Controller
     {
         private readonly DataBaseContext _db;
-        private readonly CookieService _cookieService;
         private readonly UserManager<Usuario> _userManager;
 
-        public ErrorController(DataBaseContext db, CookieService cookieService, UserManager<Usuario> userManager)
+        public ErrorController(DataBaseContext db, UserManager<Usuario> userManager)
         {
             _db = db;
-            _cookieService = cookieService;
             _userManager = userManager;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             IActionResult result = RedirectToAction("Index", "Home");
-            int? userId = null;
+            string userId = null;
+
+            var currentUser = await _userManager.GetUserAsync(User);
 
             if (User.Identity.IsAuthenticated)
             {
-                userId = CurrentUser.Id;
-
+                userId = currentUser.Id;
             }
 
             string origin = "";
@@ -70,9 +67,9 @@ namespace MatrizHabilidadeCore.Controllers
             // dentro do ambiente de desenvolvimento
             try
             {
-                _db.Erros.Add(new Error()
+                _db.Erros.Add(new Error(exception, origin)
                 {
-                    Id = (int)userId,
+                    UserId = userId,
                     Data = DateTime.Now,
                 });
                 _db.SaveChanges();
@@ -83,18 +80,20 @@ namespace MatrizHabilidadeCore.Controllers
                 message = "Algo deu errado. Código: 226";
             }
 
-            SetMessage(message);
+            TempData["Message"] = message;
 
             return result;
         }
 
-        public IActionResult Status(string origin, int errorCode)
+        public async Task<IActionResult> Status(string origin, int errorCode)
         {
-            string? userId = null;
+            string userId = null;
+
+            var currentUser = await _userManager.GetUserAsync(User);
 
             if (User.Identity.IsAuthenticated)
             {
-                userId = CurrentUser.Id;
+                userId = currentUser.Id;
             }
 
             string message = "Algo deu errado.";
@@ -120,7 +119,7 @@ namespace MatrizHabilidadeCore.Controllers
                 message = "Algo deu errado. Código: 226";
             }
 
-            SetMessage(message);
+            TempData["Message"] = message;
 
             return RedirectToAction("Index", "Home");
         }
@@ -212,14 +211,8 @@ namespace MatrizHabilidadeCore.Controllers
             return Content("Ok");
         }
 
-        public ActionResult ChangeUser(string cookieValue)
-        {
-            return RedirectToAction("Index", "Home");
-        }
-
         public ActionResult UsuarioHasTreinamento(string login, int nota)
         {
-
             int treinamentoId = 3;
             var colaborador = _db.Colaboradores.Where(c => c.Login == login).FirstOrDefault();
 
@@ -234,12 +227,13 @@ namespace MatrizHabilidadeCore.Controllers
 
                 return Content(hasTreinamento.ToString());
             }
+
             return Content("");
         }
 
-        public ActionResult NotFound()
+        public new ActionResult NotFound()
         {
-            SetMessage("Algo deu errado");
+            TempData["Message"] = "Algo deu errado"; 
 
             return RedirectToAction("Index", "Home");
         }

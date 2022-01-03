@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
+using System.Globalization;
 
 namespace MatrizHabilidadeCore.Utility
 {
@@ -41,6 +42,32 @@ namespace MatrizHabilidadeCore.Utility
         public static bool IsCellDateFormatted(this ICell cell)
         {
             return DateUtil.IsCellDateFormatted(cell);
+        }
+
+        public static DateTime? ToDateTime(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return null;
+            }
+            else
+            {
+                value = value.Trim();
+
+                DateTime.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result);
+
+                if (result == DateTime.MinValue)
+                {
+                    DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
+
+                    if (result == DateTime.MinValue)
+                    {
+                        return null;
+                    }
+                }
+
+                return result;
+            }
         }
 
         public static string GetStringValue(this ICell cell)

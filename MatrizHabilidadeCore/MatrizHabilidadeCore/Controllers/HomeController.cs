@@ -26,14 +26,13 @@ namespace MatrizHabilidadeCore.Controllers
         {
         }
 
-        public async Task<IActionResult> Teste()
+        public IActionResult Teste()
         {
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-
             var model = new Dictionary<string, string>();
             
             foreach (var planta in _db.Plantas.Where(p => p.IsAtivo).ToList())
@@ -61,7 +60,7 @@ namespace MatrizHabilidadeCore.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Sair()
+        public IActionResult Sair()
         {
 
             return RedirectToAction("Index");
@@ -81,9 +80,9 @@ namespace MatrizHabilidadeCore.Controllers
             return Redirect(redirectUri);
         }
 
-        public async Task<IActionResult> GetColaborador(string text, string maquina)
+        public IActionResult GetColaborador(string text, string maquina)
         {
-            List<AutoCompleteViewModel> model = new List<AutoCompleteViewModel>();
+            var model = new List<AutoCompleteViewModel>();
 
             int maquinaId = Convert.ToInt32(Encrypting.Decrypt(maquina));
 
@@ -107,7 +106,7 @@ namespace MatrizHabilidadeCore.Controllers
             return Json(model);
         }
 
-        public async Task<IActionResult> GetTreinamentos(int tipo, string maquina)
+        public IActionResult GetTreinamentos(int tipo, string maquina)
         {
             if (maquina != null)
             {
@@ -251,7 +250,7 @@ namespace MatrizHabilidadeCore.Controllers
             return Encrypting.Encrypt(JsonConvert.SerializeObject(model));
         }
 
-        public async Task<IActionResult> TreinamentoVirtual(string json)
+        public IActionResult TreinamentoVirtual(string json)
         {
             json = Encrypting.Decrypt(json);
 

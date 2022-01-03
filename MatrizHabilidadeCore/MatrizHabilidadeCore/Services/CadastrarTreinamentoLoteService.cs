@@ -188,7 +188,7 @@ namespace MatrizHabilidade.Services
                         }
                         else if (type == Coluna.DataInicial)
                         {
-                            if(Convert.ToDateTime(value) != null)
+                            if(value.ToDateTime().HasValue)
                             {
                                 data = Convert.ToDateTime(value);
                             }
